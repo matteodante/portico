@@ -6,6 +6,7 @@
 // (clean room). Direct3D 9 conventions: row vectors (v' = v * M), row-major matrices, left-handed unless the name ends
 // in RH.
 #include <d3dx9math.h>
+#include <d3dx9mesh.h>
 
 namespace {
 
@@ -436,6 +437,87 @@ D3DXMATRIX *WINAPI D3DXMatrixOrthoOffCenterRH(D3DXMATRIX *pOut, FLOAT l, FLOAT r
 }
 
 // Reflection about the (normalized) plane: v' = v - 2 (n . v + d) n.
+// The documented order: Msc^-1 * Msr^-1 * Ms * Msr * Msc * Mrc^-1 * Mr * Mrc * Mt, where Msc and Mrc translate to the
+// scaling and rotation centers, Msr and Mr rotate, Ms scales and Mt translates. A null argument is the identity.
+D3DXMATRIX *WINAPI D3DXMatrixTransformation(D3DXMATRIX *pOut, const D3DXVECTOR3 *pScalingCenter,
+                                            const D3DXQUATERNION *pScalingRotation, const D3DXVECTOR3 *pScaling,
+                                            const D3DXVECTOR3 *pRotationCenter, const D3DXQUATERNION *pRotation,
+                                            const D3DXVECTOR3 *pTranslation) {
+    D3DXMATRIX m, t;
+    D3DXMatrixIdentity(&m);
+    if (pScaling) {
+        D3DXVECTOR3 c = pScalingCenter ? *pScalingCenter : D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+        D3DXMATRIX r, rInv, s;
+        D3DXMatrixIdentity(&r);
+        if (pScalingRotation) D3DXMatrixRotationQuaternion(&r, pScalingRotation);
+        D3DXMatrixInverse(&rInv, nullptr, &r);
+        D3DXMatrixScaling(&s, pScaling->x, pScaling->y, pScaling->z);
+        D3DXMatrixTranslation(&t, -c.x, -c.y, -c.z);
+        m = t * rInv * s * r;
+        D3DXMatrixTranslation(&t, c.x, c.y, c.z);
+        m *= t;
+    }
+    if (pRotation) {
+        D3DXVECTOR3 c = pRotationCenter ? *pRotationCenter : D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+        D3DXMATRIX r;
+        D3DXMatrixRotationQuaternion(&r, pRotation);
+        D3DXMatrixTranslation(&t, -c.x, -c.y, -c.z);
+        m = m * t * r;
+        D3DXMatrixTranslation(&t, c.x, c.y, c.z);
+        m *= t;
+    }
+    if (pTranslation) {
+        D3DXMatrixTranslation(&t, pTranslation->x, pTranslation->y, pTranslation->z);
+        m *= t;
+    }
+    *pOut = m;
+    return pOut;
+}
+
+// The same in the XY plane: rotations about Z, no scaling in Z.
+D3DXMATRIX *WINAPI D3DXMatrixTransformation2D(D3DXMATRIX *pOut, const D3DXVECTOR2 *pScalingCenter, FLOAT ScalingRotation,
+                                              const D3DXVECTOR2 *pScaling, const D3DXVECTOR2 *pRotationCenter,
+                                              FLOAT Rotation, const D3DXVECTOR2 *pTranslation) {
+    const D3DXVECTOR3 z(0.0f, 0.0f, 1.0f);
+    D3DXVECTOR3 sc, s, rc, t;
+    D3DXQUATERNION sr, r;
+    if (pScalingCenter) sc = D3DXVECTOR3(pScalingCenter->x, pScalingCenter->y, 0.0f);
+    if (pScaling) s = D3DXVECTOR3(pScaling->x, pScaling->y, 1.0f);
+    if (pRotationCenter) rc = D3DXVECTOR3(pRotationCenter->x, pRotationCenter->y, 0.0f);
+    if (pTranslation) t = D3DXVECTOR3(pTranslation->x, pTranslation->y, 0.0f);
+    D3DXQuaternionRotationAxis(&sr, &z, ScalingRotation);
+    D3DXQuaternionRotationAxis(&r, &z, Rotation);
+    return D3DXMatrixTransformation(pOut, pScalingCenter ? &sc : nullptr, &sr, pScaling ? &s : nullptr,
+                                    pRotationCenter ? &rc : nullptr, &r, pTranslation ? &t : nullptr);
+}
+
+// Scale, rotation and translation of an affine matrix: the scales are the lengths of the first three rows, the
+// rotation what is left of them once divided by the scales. A reflection (negative determinant) goes to the x scale.
+// A zero scale has no rotation to find: D3DERR_INVALIDCALL.
+HRESULT WINAPI D3DXMatrixDecompose(D3DXVECTOR3 *pOutScale, D3DXQUATERNION *pOutRotation, D3DXVECTOR3 *pOutTranslation,
+                                   const D3DXMATRIX *pM) {
+    if (!pOutScale || !pOutRotation || !pOutTranslation || !pM) return D3DERR_INVALIDCALL;
+    const D3DXMATRIX &m = *pM;
+    D3DXVECTOR3 x(m._11, m._12, m._13), y(m._21, m._22, m._23), z(m._31, m._32, m._33), yz;
+    D3DXVECTOR3 s(D3DXVec3Length(&x), D3DXVec3Length(&y), D3DXVec3Length(&z));
+    *pOutTranslation = D3DXVECTOR3(m._41, m._42, m._43);
+    if (s.x == 0.0f || s.y == 0.0f || s.z == 0.0f) {
+        *pOutScale = s;
+        *pOutRotation = D3DXQUATERNION(0.0f, 0.0f, 0.0f, 1.0f);
+        return D3DERR_INVALIDCALL;
+    }
+    D3DXVec3Cross(&yz, &y, &z);
+    if (D3DXVec3Dot(&x, &yz) < 0.0f) s.x = -s.x;
+    D3DXMATRIX r;
+    D3DXMatrixIdentity(&r);
+    r._11 = x.x / s.x; r._12 = x.y / s.x; r._13 = x.z / s.x;
+    r._21 = y.x / s.y; r._22 = y.y / s.y; r._23 = y.z / s.y;
+    r._31 = z.x / s.z; r._32 = z.y / s.z; r._33 = z.z / s.z;
+    *pOutScale = s;
+    D3DXQuaternionRotationMatrix(pOutRotation, &r);
+    return D3D_OK;
+}
+
 D3DXMATRIX *WINAPI D3DXMatrixReflect(D3DXMATRIX *pOut, const D3DXPLANE *pPlane) {
     D3DXPLANE p;
     D3DXPlaneNormalize(&p, pPlane);
@@ -562,6 +644,15 @@ void WINAPI D3DXQuaternionToAxisAngle(const D3DXQUATERNION *pQ, D3DXVECTOR3 *pAx
     if (pAngle) *pAngle = 2.0f * acosf(pQ->w < -1.0f ? -1.0f : pQ->w > 1.0f ? 1.0f : pQ->w);
 }
 
+// The natural logarithm of a unit quaternion (v sin t, cos t): (v t, 0).
+D3DXQUATERNION *WINAPI D3DXQuaternionLn(D3DXQUATERNION *pOut, const D3DXQUATERNION *pQ) {
+    FLOAT w = pQ->w > 1.0f ? 1.0f : (pQ->w < -1.0f ? -1.0f : pQ->w);
+    FLOAT t = acosf(w), s = sinf(t);
+    FLOAT k = fabsf(s) > 1e-6f ? t / s : 1.0f;
+    *pOut = D3DXQUATERNION(pQ->x * k, pQ->y * k, pQ->z * k, 0.0f);
+    return pOut;
+}
+
 // ---- Planes -----------------------------------------------------------------------------------------------------------
 D3DXPLANE *WINAPI D3DXPlaneNormalize(D3DXPLANE *pOut, const D3DXPLANE *pP) {
     FLOAT l = sqrtf(pP->a * pP->a + pP->b * pP->b + pP->c * pP->c);
@@ -609,6 +700,43 @@ D3DXCOLOR *WINAPI D3DXColorAdjustSaturation(D3DXCOLOR *pOut, const D3DXCOLOR *pC
 D3DXCOLOR *WINAPI D3DXColorAdjustContrast(D3DXCOLOR *pOut, const D3DXCOLOR *pC, FLOAT c) {
     *pOut = D3DXCOLOR(0.5f + c * (pC->r - 0.5f), 0.5f + c * (pC->g - 0.5f), 0.5f + c * (pC->b - 0.5f), pC->a);
     return pOut;
+}
+
+// ---- Ray tests (d3dx9mesh.h) ------------------------------------------------------------------------------------------
+// Moller-Trumbore, without culling: the triangle is hit from either side.
+BOOL WINAPI D3DXIntersectTri(const D3DXVECTOR3 *p0, const D3DXVECTOR3 *p1, const D3DXVECTOR3 *p2,
+                             const D3DXVECTOR3 *pRayPos, const D3DXVECTOR3 *pRayDir, FLOAT *pU, FLOAT *pV,
+                             FLOAT *pDist) {
+    D3DXVECTOR3 e1 = *p1 - *p0, e2 = *p2 - *p0, p, q;
+    D3DXVec3Cross(&p, pRayDir, &e2);
+    FLOAT det = D3DXVec3Dot(&e1, &p);
+    if (fabsf(det) < 1e-12f) return FALSE;  // the ray runs along the triangle's plane
+    FLOAT inv = 1.0f / det;
+    D3DXVECTOR3 t = *pRayPos - *p0;
+    FLOAT u = D3DXVec3Dot(&t, &p) * inv;
+    if (u < 0.0f || u > 1.0f) return FALSE;
+    D3DXVec3Cross(&q, &t, &e1);
+    FLOAT v = D3DXVec3Dot(pRayDir, &q) * inv;
+    if (v < 0.0f || u + v > 1.0f) return FALSE;
+    FLOAT d = D3DXVec3Dot(&e2, &q) * inv;
+    if (d < 0.0f) return FALSE;  // behind the ray's origin
+    if (pU) *pU = u;
+    if (pV) *pV = v;
+    if (pDist) *pDist = d;
+    return TRUE;
+}
+
+// |o + t d - c| = r for some t >= 0. With the origin outside (c > 0 below) both roots have the same sign, so the
+// sphere is ahead when their sum, -b / a, is positive.
+BOOL WINAPI D3DXSphereBoundProbe(const D3DXVECTOR3 *pCenter, FLOAT Radius, const D3DXVECTOR3 *pRayPosition,
+                                 const D3DXVECTOR3 *pRayDirection) {
+    D3DXVECTOR3 oc = *pRayPosition - *pCenter;
+    FLOAT a = D3DXVec3Dot(pRayDirection, pRayDirection);
+    FLOAT b = 2.0f * D3DXVec3Dot(&oc, pRayDirection);
+    FLOAT c = D3DXVec3Dot(&oc, &oc) - Radius * Radius;
+    if (c <= 0.0f) return TRUE;  // the origin is inside
+    if (a <= 0.0f || b * b - 4.0f * a * c < 0.0f) return FALSE;
+    return b < 0.0f;
 }
 
 }  // extern "C"

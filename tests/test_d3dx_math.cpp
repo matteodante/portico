@@ -307,6 +307,84 @@ static void Colors() {
     CHECK(Near(same.r, c.r) && Near(same.g, c.g) && Near(same.b, c.b));
 }
 
+static void Transformations() {
+    // D3DXMatrixTransformation against the same steps built by hand (row vectors: left to right).
+    D3DXVECTOR3 sc(1, 2, 3), s(2, 3, 4), rc(-1, 0, 2), t(5, -6, 7), axis(1, 2, 3);
+    D3DXQUATERNION sr, r;
+    D3DXVec3Normalize(&axis, &axis);
+    D3DXQuaternionRotationAxis(&sr, &axis, 0.3f);
+    D3DXQuaternionRotationYawPitchRoll(&r, 0.4f, -0.2f, 1.1f);
+    D3DXMATRIX m, msc, mscInv, msr, msrInv, ms, mrc, mrcInv, mr, mt;
+    D3DXMatrixTranslation(&msc, sc.x, sc.y, sc.z);
+    D3DXMatrixTranslation(&mscInv, -sc.x, -sc.y, -sc.z);
+    D3DXMatrixRotationQuaternion(&msr, &sr);
+    D3DXMatrixInverse(&msrInv, nullptr, &msr);
+    D3DXMatrixScaling(&ms, s.x, s.y, s.z);
+    D3DXMatrixTranslation(&mrc, rc.x, rc.y, rc.z);
+    D3DXMatrixTranslation(&mrcInv, -rc.x, -rc.y, -rc.z);
+    D3DXMatrixRotationQuaternion(&mr, &r);
+    D3DXMatrixTranslation(&mt, t.x, t.y, t.z);
+    D3DXMatrixTransformation(&m, &sc, &sr, &s, &rc, &r, &t);
+    CHECK(Near(m, mscInv * msrInv * ms * msr * msc * mrcInv * mr * mrc * mt));
+
+    // All null: the identity. Only a translation: a translation.
+    D3DXMatrixTransformation(&m, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+    CHECK(D3DXMatrixIsIdentity(&m));
+    D3DXMatrixTransformation(&m, nullptr, nullptr, nullptr, nullptr, nullptr, &t);
+    CHECK(Near(m, mt));
+
+    // Decompose undoes a scale, rotation and translation.
+    D3DXMatrixTransformation(&m, nullptr, nullptr, &s, nullptr, &r, &t);
+    D3DXVECTOR3 s2, t2;
+    D3DXQUATERNION r2;
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &m) == D3D_OK);
+    CHECK(Near(s2, s) && Near(t2, t) && SameRotation(r2, r));
+    D3DXMATRIX flat;
+    D3DXMatrixScaling(&flat, 1.0f, 0.0f, 1.0f);
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &flat) == D3DERR_INVALIDCALL);
+
+    // 2D: a scaling about a center, then a rotation about another, then a translation, in the XY plane.
+    D3DXVECTOR2 c2(1, 1), s2d(2, 3), rc2(0, 1), t2d(4, 0);
+    D3DXMATRIX m2;
+    D3DXMatrixTransformation2D(&m2, &c2, 0.0f, &s2d, &rc2, D3DX_PI / 2, &t2d);
+    // (2, 1): scaled about (1, 1) -> (3, 1); rotated 90 degrees about (0, 1) -> (0, 4); translated -> (4, 4).
+    CHECK(Near(Point(D3DXVECTOR3(2, 1, 0), m2), D3DXVECTOR3(4, 4, 0)));
+}
+
+static void Logarithm() {
+    // ln of the rotation by angle a about the unit axis n is (n a / 2, 0).
+    D3DXVECTOR3 n(0, 0, 1);
+    D3DXQUATERNION q, l;
+    D3DXQuaternionRotationAxis(&q, &n, 1.2f);
+    D3DXQuaternionLn(&l, &q);
+    CHECK(Near(l.x, 0.0f) && Near(l.y, 0.0f) && Near(l.z, 0.6f) && l.w == 0.0f);
+    D3DXQUATERNION id(0, 0, 0, 1);
+    D3DXQuaternionLn(&l, &id);
+    CHECK(l.x == 0.0f && l.y == 0.0f && l.z == 0.0f && l.w == 0.0f);
+}
+
+static void RayTests() {
+    D3DXVECTOR3 a(0, 0, 0), b(1, 0, 0), c(0, 1, 0);
+    D3DXVECTOR3 pos(0.25f, 0.25f, -2.0f), dir(0, 0, 2);  // twice unit length: Dist counts in direction lengths
+    FLOAT u = -1, v = -1, d = -1;
+    CHECK(D3DXIntersectTri(&a, &b, &c, &pos, &dir, &u, &v, &d));
+    CHECK(Near(u, 0.25f) && Near(v, 0.25f) && Near(d, 1.0f));
+    D3DXVECTOR3 back(0.25f, 0.25f, 2.0f), backDir(0, 0, -1);
+    CHECK(D3DXIntersectTri(&a, &b, &c, &back, &backDir, &u, &v, &d));  // from the other side too
+    D3DXVECTOR3 away(0, 0, -1);
+    CHECK(!D3DXIntersectTri(&a, &b, &c, &pos, &away, &u, &v, &d));    // the triangle is behind
+    D3DXVECTOR3 outside(0.8f, 0.8f, -2.0f);
+    CHECK(!D3DXIntersectTri(&a, &b, &c, &outside, &dir, &u, &v, &d)); // u + v > 1
+    D3DXVECTOR3 along(1, 0, 0);
+    CHECK(!D3DXIntersectTri(&a, &b, &c, &pos, &along, &u, &v, &d));   // parallel to the plane
+
+    D3DXVECTOR3 center(0, 0, 10), origin(0, 0, 0), ahead(0, 0, 1), behind(0, 0, -1), aside(1, 0, 0);
+    CHECK(D3DXSphereBoundProbe(&center, 1.0f, &origin, &ahead));
+    CHECK(!D3DXSphereBoundProbe(&center, 1.0f, &origin, &behind));
+    CHECK(!D3DXSphereBoundProbe(&center, 1.0f, &origin, &aside));
+    CHECK(D3DXSphereBoundProbe(&center, 20.0f, &origin, &behind));    // the origin is inside
+}
+
 int main() {
     Matrices();
     ViewAndProjection();
@@ -314,6 +392,9 @@ int main() {
     Planes();
     Vectors();
     Colors();
+    Transformations();
+    Logarithm();
+    RayTests();
     std::printf("%d checks, %d failures\n", g_checks, g_failures);
     return g_failures ? 1 : 0;
 }

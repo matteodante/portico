@@ -1024,4 +1024,17 @@ HRESULT WINAPI D3DXLoadSurfaceFromSurface(LPDIRECT3DSURFACE9 pDestSurface, CONST
     return WriteSurface(pDestSurface, pDestRect, argb.data(), w, h, sr, ColorKey);
 }
 
+// Not implemented: a program's screenshots need a file format encoder and, for render targets, a readback.
+HRESULT WINAPI D3DXSaveSurfaceToFileA(LPCSTR pDestFile, D3DXIMAGE_FILEFORMAT, LPDIRECT3DSURFACE9, const PALETTEENTRY *,
+                                      const RECT *) {
+    Log("D3DXSaveSurfaceToFile %s: not implemented", pDestFile ? pDestFile : "");
+    return E_NOTIMPL;
+}
+
+HRESULT WINAPI D3DXSaveSurfaceToFileInMemory(LPD3DXBUFFER *ppDestBuf, D3DXIMAGE_FILEFORMAT, LPDIRECT3DSURFACE9,
+                                             const PALETTEENTRY *, const RECT *) {
+    if (ppDestBuf) *ppDestBuf = nullptr;
+    return E_NOTIMPL;
+}
+
 }  // extern "C"

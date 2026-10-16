@@ -335,6 +335,15 @@ D3DXMATRIX *WINAPI D3DXMatrixOrthoLH(D3DXMATRIX *pOut, FLOAT w, FLOAT h, FLOAT z
 D3DXMATRIX *WINAPI D3DXMatrixOrthoRH(D3DXMATRIX *pOut, FLOAT w, FLOAT h, FLOAT zn, FLOAT zf);
 D3DXMATRIX *WINAPI D3DXMatrixOrthoOffCenterLH(D3DXMATRIX *pOut, FLOAT l, FLOAT r, FLOAT b, FLOAT t, FLOAT zn, FLOAT zf);
 D3DXMATRIX *WINAPI D3DXMatrixOrthoOffCenterRH(D3DXMATRIX *pOut, FLOAT l, FLOAT r, FLOAT b, FLOAT t, FLOAT zn, FLOAT zf);
+D3DXMATRIX *WINAPI D3DXMatrixTransformation(D3DXMATRIX *pOut, const D3DXVECTOR3 *pScalingCenter,
+                                            const D3DXQUATERNION *pScalingRotation, const D3DXVECTOR3 *pScaling,
+                                            const D3DXVECTOR3 *pRotationCenter, const D3DXQUATERNION *pRotation,
+                                            const D3DXVECTOR3 *pTranslation);
+D3DXMATRIX *WINAPI D3DXMatrixTransformation2D(D3DXMATRIX *pOut, const D3DXVECTOR2 *pScalingCenter, FLOAT ScalingRotation,
+                                              const D3DXVECTOR2 *pScaling, const D3DXVECTOR2 *pRotationCenter,
+                                              FLOAT Rotation, const D3DXVECTOR2 *pTranslation);
+HRESULT WINAPI D3DXMatrixDecompose(D3DXVECTOR3 *pOutScale, D3DXQUATERNION *pOutRotation, D3DXVECTOR3 *pOutTranslation,
+                                   const D3DXMATRIX *pM);
 D3DXMATRIX *WINAPI D3DXMatrixReflect(D3DXMATRIX *pOut, const D3DXPLANE *pPlane);
 D3DXMATRIX *WINAPI D3DXMatrixShadow(D3DXMATRIX *pOut, const D3DXVECTOR4 *pLight, const D3DXPLANE *pPlane);
 
@@ -346,6 +355,7 @@ D3DXQUATERNION *WINAPI D3DXQuaternionRotationMatrix(D3DXQUATERNION *pOut, const 
 D3DXQUATERNION *WINAPI D3DXQuaternionRotationYawPitchRoll(D3DXQUATERNION *pOut, FLOAT yaw, FLOAT pitch, FLOAT roll);
 D3DXQUATERNION *WINAPI D3DXQuaternionSlerp(D3DXQUATERNION *pOut, const D3DXQUATERNION *pQ1, const D3DXQUATERNION *pQ2, FLOAT t);
 void WINAPI D3DXQuaternionToAxisAngle(const D3DXQUATERNION *pQ, D3DXVECTOR3 *pAxis, FLOAT *pAngle);
+D3DXQUATERNION *WINAPI D3DXQuaternionLn(D3DXQUATERNION *pOut, const D3DXQUATERNION *pQ);
 
 D3DXPLANE *WINAPI D3DXPlaneNormalize(D3DXPLANE *pOut, const D3DXPLANE *pP);
 D3DXPLANE *WINAPI D3DXPlaneFromPointNormal(D3DXPLANE *pOut, const D3DXVECTOR3 *pPoint, const D3DXVECTOR3 *pNormal);

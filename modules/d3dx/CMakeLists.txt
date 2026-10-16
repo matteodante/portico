@@ -1,6 +1,6 @@
-# Portico D3DX: D3DX 9 math and texture loading (DDS, TGA, BMP; PNG with zlib), over any IDirect3DDevice9.
+# Portico D3DX: D3DX 9 math, ray tests and texture loading (DDS, TGA, BMP; PNG with zlib), over any IDirect3DDevice9.
 
-add_library(portico_d3dx STATIC src/d3dx9math.cpp src/d3dx9tex.cpp)
+add_library(portico_d3dx STATIC src/d3dx9math.cpp src/d3dx9shader.cpp src/d3dx9tex.cpp)
 add_library(portico::d3dx ALIAS portico_d3dx)
 # Before any other include folder: Portico's d3dx9*.h, never another D3DX's.
 target_include_directories(portico_d3dx BEFORE PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -8,6 +8,7 @@
 #define PORTICO_D3DX9TEX_H
 
 #include <d3d9.h>
+#include <d3dx9core.h>
 
 #define D3DX_DEFAULT ((UINT)-1)
 #define D3DX_DEFAULT_NONPOW2 ((UINT)-2)
@@ -96,6 +97,13 @@ HRESULT WINAPI D3DXLoadSurfaceFromFileInMemory(LPDIRECT3DSURFACE9 pDestSurface, 
                                                const RECT *pDestRect, LPCVOID pSrcData, UINT SrcDataSize,
                                                const RECT *pSrcRect, DWORD Filter, D3DCOLOR ColorKey,
                                                D3DXIMAGE_INFO *pSrcInfo);
+// Not implemented (screenshots to files): they fail with E_NOTIMPL and give back no buffer.
+HRESULT WINAPI D3DXSaveSurfaceToFileA(LPCSTR pDestFile, D3DXIMAGE_FILEFORMAT DestFormat, LPDIRECT3DSURFACE9 pSrcSurface,
+                                      const PALETTEENTRY *pSrcPalette, const RECT *pSrcRect);
+HRESULT WINAPI D3DXSaveSurfaceToFileInMemory(LPD3DXBUFFER *ppDestBuf, D3DXIMAGE_FILEFORMAT DestFormat,
+                                             LPDIRECT3DSURFACE9 pSrcSurface, const PALETTEENTRY *pSrcPalette,
+                                             const RECT *pSrcRect);
+
 HRESULT WINAPI D3DXLoadSurfaceFromSurface(LPDIRECT3DSURFACE9 pDestSurface, const PALETTEENTRY *pDestPalette,
                                           const RECT *pDestRect, LPDIRECT3DSURFACE9 pSrcSurface,
                                           const PALETTEENTRY *pSrcPalette, const RECT *pSrcRect, DWORD Filter,

@@ -3,6 +3,15 @@
 All notable changes are listed here. The project follows [Semantic Versioning](https://semver.org); until 1.0 a
 minor version may change the API.
 
+## [Unreleased]
+
+### Added
+- `portico::d3dx`: `D3DXMatrixTransformation`, `D3DXMatrixTransformation2D`, `D3DXMatrixDecompose`,
+  `D3DXQuaternionLn`, and the ray tests `D3DXIntersectTri` and `D3DXSphereBoundProbe` (new `d3dx9mesh.h`), with
+  unit tests.
+- `d3dx9core.h` and `d3dx9shader.h`, so that programs with a fixed-function fallback link: `D3DXAssembleShader`,
+  `D3DXSaveSurfaceToFileA` and `D3DXSaveSurfaceToFileInMemory` fail with `E_NOTIMPL` and give back no buffer.
+
 ## [0.1.0] - 2026-10-16
 
 First release: the Direct3D 9 module.
