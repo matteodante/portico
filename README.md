@@ -26,7 +26,9 @@ expects.
 
 Portico was extracted from a private port of a whole 2000s Windows MMO client (about 400,000 lines of C++ using
 MFC, Win32, Direct3D 9 and DirectSound) to the browser, which runs there against its original servers. The pieces
-that are not specific to that program are being published here, one module at a time.
+that are not specific to that program are being published here, one module at a time. How that port was done, and
+what was measured, is in the write-up: [Porting a 400,000-line Windows MMO client to the browser without rewriting
+it](https://github.com/matteodante/matteodante/blob/main/articles/porting-a-windows-mmo-client-to-the-browser.md).
 
 ## What's in it
 
