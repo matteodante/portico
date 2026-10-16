@@ -7,7 +7,7 @@ pipeline) on top of what a browser offers, so the program's own code compiles un
 [Emscripten](https://emscripten.org) and runs in a tab. The same code also runs natively on Windows over
 [ANGLE](https://chromium.googlesource.com/angle/angle), where it is tested against the real Direct3D 9 runtime.
 
-**[Live demo](https://matteodante.github.io/portico/)** — Microsoft's Direct3D 9 tutorials 1–5, compiled unchanged.
+**[Live demo](https://matteodante.it/portico-demo/index.html)** — Microsoft's Direct3D 9 tutorials 1–5, compiled unchanged.
 
 | | | | | |
 |---|---|---|---|---|
