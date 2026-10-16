@@ -36,7 +36,7 @@ EM_JS(void, portico_d3d9_install_test_hook, (), {
     ch.onmessage = function(e) {
         if (e.data !== 'lose-context') return;
         var ext = gl.getExtension('WEBGL_lose_context');
-        console.warn('[portico-d3d9] test: losing the WebGL context' + (ext ? '' : ' (no WEBGL_lose_context)'));
+        console.warn('[portico-d3d9] test: losing the WebGL context' + (ext ? "" : " (no WEBGL_lose_context)"));
         if (ext) ext.loseContext();
     };
 });

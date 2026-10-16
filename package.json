@@ -3,7 +3,6 @@
   "private": true,
   "description": "Browser test tools of Portico (screenshots of the samples).",
   "license": "MIT",
-  "type": "module",
   "scripts": {
     "shots": "node tools/browser_shots.mjs"
   },
