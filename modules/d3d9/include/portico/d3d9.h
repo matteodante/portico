@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico D3D9: Direct3D 9 (fixed-function pipeline) on OpenGL ES 3 — WebGL2 in the browser, ANGLE natively.
 //
 // Programs keep calling the Direct3D 9 API through <d3d9.h>; linking portico::d3d9 makes Direct3DCreate9 return

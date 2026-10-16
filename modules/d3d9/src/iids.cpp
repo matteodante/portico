@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // COM interface IDs. d3d9.h defines them only for _WIN32 (natively they come from dxguid.lib);
 // the browser build defines the ones the layer compares against, with the d3d9.h values.
 #include "common.h"

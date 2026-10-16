@@ -1,3 +1,7 @@
+# Copyright (c) 2026 Matteo Dante
+# SPDX-License-Identifier: MPL-2.0
+# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+# not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 """Compares a captured frame with a Direct3D 9 reference shot: "the same to the eye".
 
     python tools/compare_shots.py <reference.png> <capture.png> [--diff out.png] [--json out.json]

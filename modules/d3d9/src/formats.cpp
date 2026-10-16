@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // D3D9 surface formats in GLES3/WebGL2 terms, and the CPU conversions between the two layouts.
 #include "common.h"
 

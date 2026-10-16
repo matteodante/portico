@@ -7,7 +7,8 @@ Thanks for helping. Portico is small and young, so the rules are few.
 - For anything larger than a fix, open an issue first and describe what you want to change and why.
 - Portico implements Windows APIs for programs that call them. A change is justified by a real program that needs
   it: say which call, with which arguments, and what the program expected.
-- Licensing: contributions are under the [MIT license](LICENSE). Do not copy code from Wine, ReactOS, Microsoft's
+- Licensing: contributions are under the [Mozilla Public License 2.0](LICENSE); new source files start with the
+  same license notice as the existing ones. Do not copy code from Wine, ReactOS, Microsoft's
   SDKs or any project whose license is not compatible; write it from the public documentation and say so in the
   pull request. Reading other implementations to understand behavior is fine; copying is not.
 

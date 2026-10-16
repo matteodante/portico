@@ -134,8 +134,10 @@ Issues and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Se
 
 ## License
 
-[MIT](LICENSE). Third-party components and their licenses are listed in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the samples are Microsoft's, under the MIT license.
+[Mozilla Public License 2.0](LICENSE), copyright (c) 2026 Matteo Dante. Portico can be used in any program, open or
+closed, free or commercial; changes to Portico's own files are shared under the same license. Third-party components
+and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the samples are Microsoft's, under
+the MIT license.
 
 Portico is developed by Matteo Dante, with AI coding agents (Anthropic's Claude) writing much of the code under his
 direction and review. Direct3D, DirectX and Windows are trademarks of Microsoft; Portico is not affiliated with

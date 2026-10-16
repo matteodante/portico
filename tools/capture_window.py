@@ -1,3 +1,7 @@
+# Copyright (c) 2026 Matteo Dante
+# SPDX-License-Identifier: MPL-2.0
+# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+# not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 """Windows only: starts a program, waits, and saves its window's client area as a PNG.
 
     python tools/capture_window.py <program.exe> <out.png> [--wait 1500] [--timeout 20]

@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico D3DX: the D3DX 9 math types and functions, written from the public D3DX documentation (clean room).
 // Row vectors and row-major matrices, as in Direct3D 9: a point p is transformed as p * M.
 #ifndef PORTICO_D3DX9MATH_H

@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico win32: the COM declaration macros (C++ interfaces as abstract classes, the layout Direct3D 9 headers expect),
 // IUnknown, and __uuidof for the interfaces declared with __CRT_UUID_DECL.
 #ifndef PORTICO_UNKNWN_H

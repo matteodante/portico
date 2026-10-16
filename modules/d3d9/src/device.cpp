@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // IDirect3DDevice9 on GLES3: state, threading, resources, render targets, Present.
 // Drawing (vertex input, fixed-function programs, GL state) is in device_draw.cpp.
 #include "device.h"

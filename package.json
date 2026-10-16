@@ -2,7 +2,7 @@
   "name": "portico-tools",
   "private": true,
   "description": "Browser test tools of Portico (screenshots of the samples).",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "scripts": {
     "shots": "node tools/browser_shots.mjs"
   },

@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico D3DX: the D3DX 9 texture functions, over any IDirect3DDevice9 (Portico's WebGL2 device, or the
 // system's Direct3D 9 on Windows). Images are DDS (DXT1-5 and uncompressed), TGA, BMP and, when zlib is
 // available (PORTICO_D3DX_PNG), PNG; pixels are converted through 32-bit ARGB.

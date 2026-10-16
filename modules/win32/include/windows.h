@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico win32: the subset of the Windows API that Portico's modules and portable Direct3D 9 programs need, for
 // builds that are not Windows (Emscripten). Types, structures and constants have the layouts and values that the
 // Windows documentation gives; the functions are implemented in modules/win32/src.

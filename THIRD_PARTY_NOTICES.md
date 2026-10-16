@@ -1,6 +1,6 @@
 # Third-party notices
 
-Portico's own code is under the [MIT license](LICENSE). It uses or ships with the following components.
+Portico's own code is under the [Mozilla Public License 2.0](LICENSE). It uses or ships with the following components.
 
 | Component | Where | License | How it is used |
 |---|---|---|---|

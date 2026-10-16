@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Fixed-function pipeline of D3D9 rebuilt as GLSL ES 3.00 programs, one per state combination.
 //
 // Semantics follow the D3D9 documentation of the fixed-function vertex and pixel pipelines;

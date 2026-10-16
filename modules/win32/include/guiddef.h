@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // Portico win32: GUID, IID and DEFINE_GUID (with INITGUID defined, DEFINE_GUID defines the GUID; otherwise it
 // declares it).
 #ifndef PORTICO_GUIDDEF_H

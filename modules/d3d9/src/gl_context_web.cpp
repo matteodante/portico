@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // WebGL2 context of the browser build (Emscripten), the counterpart of gl_context.cpp.
 //
 // The thread that creates the device owns the context; no GL call ever waits for another thread. Two setups work:

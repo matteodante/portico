@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // D3D9 resources of the GL layer. Every resource keeps a CPU copy of its contents (Lock/Unlock
 // write there, never into mapped GL memory) and creates or updates its GL object lazily on the
 // GL thread.

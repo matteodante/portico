@@ -1,3 +1,7 @@
+// Copyright (c) 2026 Matteo Dante
+// SPDX-License-Identifier: MPL-2.0
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was
+// not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // --pre-js for PORTICO_D3D9_BITMAP_PRESENT builds: shows the frames the program's worker posts at each D3D9
 // Present (src/gl_context_web.cpp). The worker owns #canvas as an OffscreenCanvas, so the page
 // cannot draw into it; frames go to a sibling "bitmaprenderer" canvas that takes its place.
