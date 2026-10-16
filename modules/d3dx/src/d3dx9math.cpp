@@ -491,29 +491,68 @@ D3DXMATRIX *WINAPI D3DXMatrixTransformation2D(D3DXMATRIX *pOut, const D3DXVECTOR
                                     pRotationCenter ? &rc : nullptr, &r, pTranslation ? &t : nullptr);
 }
 
-// Scale, rotation and translation of an affine matrix: the scales are the lengths of the first three rows, the
-// rotation what is left of them once divided by the scales. A reflection (negative determinant) goes to the x scale.
-// A zero scale has no rotation to find: D3DERR_INVALIDCALL.
+// Scale, rotation and translation of an affine matrix, with D3DX's observable behaviour (checked against the system's
+// d3dx9_43.dll with the same inputs):
+//   - the scales are the lengths of the first three rows; the rotation is what is left of them;
+//   - a zero row is rebuilt from the other two (x from y x z, y from x x z, z from x x y), two zero rows around the
+//     remaining one, and the call still succeeds;
+//   - a reflection (negative determinant) goes to the largest scale, the first of equal ones;
+//   - rows that are not perpendicular (a shear) are not a rotation: D3DERR_INVALIDCALL, rotation (0, 0, 0, 0).
 HRESULT WINAPI D3DXMatrixDecompose(D3DXVECTOR3 *pOutScale, D3DXQUATERNION *pOutRotation, D3DXVECTOR3 *pOutTranslation,
                                    const D3DXMATRIX *pM) {
     if (!pOutScale || !pOutRotation || !pOutTranslation || !pM) return D3DERR_INVALIDCALL;
     const D3DXMATRIX &m = *pM;
-    D3DXVECTOR3 x(m._11, m._12, m._13), y(m._21, m._22, m._23), z(m._31, m._32, m._33), yz;
-    D3DXVECTOR3 s(D3DXVec3Length(&x), D3DXVec3Length(&y), D3DXVec3Length(&z));
+    D3DXVECTOR3 a[3] = {D3DXVECTOR3(m._11, m._12, m._13), D3DXVECTOR3(m._21, m._22, m._23), D3DXVECTOR3(m._31, m._32, m._33)};
+    FLOAT s[3];
+    int zeros = 0, kept = 0;
+    for (int i = 0; i < 3; i++) {
+        s[i] = D3DXVec3Length(&a[i]);
+        if (s[i] == 0.0f) zeros++;
+        else { a[i] /= s[i]; kept = i; }
+    }
     *pOutTranslation = D3DXVECTOR3(m._41, m._42, m._43);
-    if (s.x == 0.0f || s.y == 0.0f || s.z == 0.0f) {
-        *pOutScale = s;
-        *pOutRotation = D3DXQUATERNION(0.0f, 0.0f, 0.0f, 1.0f);
+
+    if (zeros == 3) {
+        a[0] = D3DXVECTOR3(1.0f, 0.0f, 0.0f); a[1] = D3DXVECTOR3(0.0f, 1.0f, 0.0f); a[2] = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+    } else if (zeros == 2) {
+        // Two perpendicular axes around the one left, in the order that keeps the basis right-handed.
+        const D3DXVECTOR3 &k = a[kept];
+        D3DXVECTOR3 h = fabsf(k.x) <= fabsf(k.y) && fabsf(k.x) <= fabsf(k.z) ? D3DXVECTOR3(1.0f, 0.0f, 0.0f)
+                      : fabsf(k.y) <= fabsf(k.z) ? D3DXVECTOR3(0.0f, 1.0f, 0.0f) : D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+        D3DXVECTOR3 b, c;
+        D3DXVec3Cross(&b, &k, &h);
+        D3DXVec3Normalize(&b, &b);
+        D3DXVec3Cross(&c, &k, &b);
+        a[(kept + 1) % 3] = b;
+        a[(kept + 2) % 3] = c;
+    } else if (zeros == 1) {
+        int z = s[0] == 0.0f ? 0 : (s[1] == 0.0f ? 1 : 2);
+        const D3DXVECTOR3 &p = a[z == 0 ? 1 : 0], &q = a[z == 2 ? 1 : 2];
+        D3DXVec3Cross(&a[z], &p, &q);
+        D3DXVec3Normalize(&a[z], &a[z]);
+    }
+
+    D3DXVECTOR3 cross;
+    D3DXVec3Cross(&cross, &a[1], &a[2]);
+    FLOAT det = D3DXVec3Dot(&a[0], &cross);
+    if (fabsf(fabsf(det) - 1.0f) > 1e-2f) {
+        *pOutScale = D3DXVECTOR3(s[0], s[1], s[2]);
+        *pOutRotation = D3DXQUATERNION(0.0f, 0.0f, 0.0f, 0.0f);
         return D3DERR_INVALIDCALL;
     }
-    D3DXVec3Cross(&yz, &y, &z);
-    if (D3DXVec3Dot(&x, &yz) < 0.0f) s.x = -s.x;
+    if (det < 0.0f) {
+        int big = 0;
+        for (int i = 1; i < 3; i++)
+            if (s[i] > s[big]) big = i;
+        s[big] = -s[big];
+        a[big] = -a[big];
+    }
     D3DXMATRIX r;
     D3DXMatrixIdentity(&r);
-    r._11 = x.x / s.x; r._12 = x.y / s.x; r._13 = x.z / s.x;
-    r._21 = y.x / s.y; r._22 = y.y / s.y; r._23 = y.z / s.y;
-    r._31 = z.x / s.z; r._32 = z.y / s.z; r._33 = z.z / s.z;
-    *pOutScale = s;
+    r._11 = a[0].x; r._12 = a[0].y; r._13 = a[0].z;
+    r._21 = a[1].x; r._22 = a[1].y; r._23 = a[1].z;
+    r._31 = a[2].x; r._32 = a[2].y; r._33 = a[2].z;
+    *pOutScale = D3DXVECTOR3(s[0], s[1], s[2]);
     D3DXQuaternionRotationMatrix(pOutRotation, &r);
     return D3D_OK;
 }
@@ -710,7 +749,7 @@ BOOL WINAPI D3DXIntersectTri(const D3DXVECTOR3 *p0, const D3DXVECTOR3 *p1, const
     D3DXVECTOR3 e1 = *p1 - *p0, e2 = *p2 - *p0, p, q;
     D3DXVec3Cross(&p, pRayDir, &e2);
     FLOAT det = D3DXVec3Dot(&e1, &p);
-    if (fabsf(det) < 1e-12f) return FALSE;  // the ray runs along the triangle's plane
+    if (det == 0.0f) return FALSE;  // the ray runs along the triangle's plane (no threshold: Dist scales with the direction)
     FLOAT inv = 1.0f / det;
     D3DXVECTOR3 t = *pRayPos - *p0;
     FLOAT u = D3DXVec3Dot(&t, &p) * inv;

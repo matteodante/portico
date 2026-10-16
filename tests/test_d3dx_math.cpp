@@ -339,9 +339,34 @@ static void Transformations() {
     D3DXQUATERNION r2;
     CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &m) == D3D_OK);
     CHECK(Near(s2, s) && Near(t2, t) && SameRotation(r2, r));
-    D3DXMATRIX flat;
+    // The cases below give the answers of the system's d3dx9_43.dll for the same inputs.
+    // A reflection goes to the largest scale (the first of equal ones), the rotation keeps the rest.
+    D3DXMATRIX refl;
+    D3DXMatrixScaling(&refl, -1.0f, 2.0f, 3.0f);
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &refl) == D3D_OK);
+    CHECK(Near(s2, D3DXVECTOR3(1, 2, -3)) && SameRotation(r2, D3DXQUATERNION(0, 1, 0, 0)));  // 180 degrees about Y
+    D3DXMatrixScaling(&refl, 3.0f, -1.0f, 2.0f);
+    D3DXMatrixDecompose(&s2, &r2, &t2, &refl);
+    CHECK(Near(s2, D3DXVECTOR3(-3, 1, 2)) && SameRotation(r2, D3DXQUATERNION(0, 0, 1, 0)));  // 180 degrees about Z
+    D3DXMatrixScaling(&refl, 2.0f, 2.0f, -2.0f);
+    D3DXMatrixDecompose(&s2, &r2, &t2, &refl);
+    CHECK(Near(s2, D3DXVECTOR3(-2, 2, 2)) && SameRotation(r2, D3DXQUATERNION(0, 1, 0, 0)));
+    // A zero scale: the row is rebuilt from the other two and the call succeeds.
+    D3DXMATRIX flat, ry, flatRot;
     D3DXMatrixScaling(&flat, 1.0f, 0.0f, 1.0f);
-    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &flat) == D3DERR_INVALIDCALL);
+    D3DXMatrixRotationY(&ry, 0.5f);
+    flatRot = flat * ry;
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &flatRot) == D3D_OK);
+    CHECK(Near(s2, D3DXVECTOR3(-1, 0, 1)) && SameRotation(r2, D3DXQUATERNION(0.2474f, 0, 0.9689f, 0)));
+    // A shear is not a rotation; a tiny one is.
+    D3DXMATRIX shear;
+    D3DXMatrixIdentity(&shear);
+    shear._12 = 1.0f;
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &shear) == D3DERR_INVALIDCALL);
+    CHECK(r2.x == 0.0f && r2.y == 0.0f && r2.z == 0.0f && r2.w == 0.0f);
+    shear._12 = 0.0f;
+    shear._21 = 0.001f;
+    CHECK(D3DXMatrixDecompose(&s2, &r2, &t2, &shear) == D3D_OK);
 
     // 2D: a scaling about a center, then a rotation about another, then a translation, in the XY plane.
     D3DXVECTOR2 c2(1, 1), s2d(2, 3), rc2(0, 1), t2d(4, 0);
@@ -375,6 +400,8 @@ static void RayTests() {
     CHECK(!D3DXIntersectTri(&a, &b, &c, &pos, &away, &u, &v, &d));    // the triangle is behind
     D3DXVECTOR3 outside(0.8f, 0.8f, -2.0f);
     CHECK(!D3DXIntersectTri(&a, &b, &c, &outside, &dir, &u, &v, &d)); // u + v > 1
+    D3DXVECTOR3 tiny(0, 0, 1e-13f);                                   // no threshold on the direction's length
+    CHECK(D3DXIntersectTri(&a, &b, &c, &pos, &tiny, &u, &v, &d) && Near(u, 0.25f) && Near(v, 0.25f));
     D3DXVECTOR3 along(1, 0, 0);
     CHECK(!D3DXIntersectTri(&a, &b, &c, &pos, &along, &u, &v, &d));   // parallel to the plane
 
