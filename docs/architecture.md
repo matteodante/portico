@@ -51,18 +51,18 @@ with `-sJSPI`; Portico's targets add that flag.
 
 `GetMessage` with an empty queue waits the same way, until an input event arrives (or 100 ms pass).
 
-## Two thread setups
+## Threads
 
-**Main thread (default).** The program runs on the page's main thread; `#canvas` holds the WebGL2 context. It
+**Main thread (v0.1).** The program runs on the page's main thread; `#canvas` holds the WebGL2 context. It
 needs no special HTTP headers, so it works on any static host (the demo runs on GitHub Pages). It suits programs
 that never block except in `Present`/`GetMessage`.
 
-**Worker (`portico::d3d9_worker`).** The program runs on a pthread (`-sPROXY_TO_PTHREAD`); `#canvas` is transferred
-to that thread as an `OffscreenCanvas` and the WebGL2 context is created there, with proxying to the main thread
-disallowed, so no GL call ever waits for another thread. Blocking calls (`Sleep`, `WaitForSingleObject`, a game
-waiting for its loader thread) then block the worker, not the page. Threads need `SharedArrayBuffer`, so the page
-must be cross-origin isolated (`Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy:
-require-corp`).
+**Worker (next).** Programs that block elsewhere (`Sleep` in a loop, a game waiting for its loader thread) need to
+run on a pthread (`-sPROXY_TO_PTHREAD`), with `#canvas` transferred to that thread as an `OffscreenCanvas` and the
+WebGL2 context created there, so no GL call ever waits for another thread. The Direct3D 9 module already creates its
+context that way (`gl_context_web.cpp`); `portico::win32` does not forward the page's input to the worker yet, so the
+build does not offer this setup. Threads need `SharedArrayBuffer`, so such a page must be cross-origin isolated
+(`Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`).
 
 ## Direct3D 9 on GLES3
 
@@ -79,8 +79,9 @@ natively (with a debugger and RenderDoc) and compared with the system's Direct3D
   for the GL thread, which keeps a loader thread drawing a loading screen from deadlocking against a main thread
   that waits for it.
 - **Resources.** Locks write into a CPU copy; the GL object is created or updated lazily on the GL thread. Static
-  buffers and textures drop their CPU copy once uploaded (a large memory saving for real programs); bytes are read
-  back from GL when a later lock needs them.
+  buffers of 4 KB and more keep no CPU copy (a large memory saving for real programs); bytes are read back from GL
+  when a later lock needs them. Textures keep theirs, as the managed pool does; `PORTICO_D3D9_DROP_TEXTURE_COPY=1`
+  frees it once a level is uploaded, for programs that never lock a texture again after using it.
 - **State cache.** GL state and bindings are cached, so programs that set the same state again and again (most do)
   cost no GL calls.
 - **Presentation.** The back buffer is a framebuffer of the layer's own, blitted to the canvas at `Present`.

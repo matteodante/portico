@@ -9,7 +9,7 @@ First release: the Direct3D 9 module.
 
 ### Added
 - `portico::d3d9`: Direct3D 9 fixed-function pipeline on OpenGL ES 3 (WebGL2 in the browser, ANGLE natively);
-  multithreaded devices; main-thread and worker setups in the browser, with the frame presented through JSPI.
+  multithreaded devices; the program on the page's main thread, with the frame presented through JSPI.
 - `portico::d3dx`: D3DX 9 math and texture loading (DDS, TGA, BMP, PNG).
 - `portico::win32`: the Win32 subset for browser builds (windows on the canvas, messages, input, timers, entry
   point), and the Direct3D 9 headers there (MinGW-w64, submodule).

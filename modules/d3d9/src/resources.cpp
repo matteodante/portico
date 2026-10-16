@@ -18,6 +18,17 @@ static bool KeepCPUCopies() {
     return s_keep;
 }
 
+// Textures keep their CPU copy, as Direct3D 9's managed pool does, so a later lock sees their contents.
+// PORTICO_D3D9_DROP_TEXTURE_COPY=1 frees it once a level is in GL: a large saving for programs that never lock a
+// texture again after using it. One that does starts from zeros, and it is logged.
+static bool DropTextureCopies() {
+    static const bool s_drop = [] {
+        char v[8] = {0};
+        return GetEnv("PORTICO_D3D9_DROP_TEXTURE_COPY", v, sizeof(v)) && v[0] == '1';
+    }();
+    return s_drop && !KeepCPUCopies();
+}
+
 // --- Resource ------------------------------------------------------------------------------
 
 template <class I>
@@ -284,6 +295,7 @@ HRESULT Texture::LockRect(UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *p
     pLockedRect->pBits = data + off;
     pLockedRect->Pitch = (INT) l.pitch;
     l.locked = true;
+    l.readOnly = (Flags & D3DLOCK_READONLY) != 0;
     return D3D_OK;
 }
 
@@ -293,7 +305,7 @@ HRESULT Texture::UnlockRect(UINT Level) {
     Texture::Level &l = m_levels[Level];
     if (!l.locked) return D3DERR_INVALIDCALL;
     l.locked = false;
-    MarkDirty(Level);
+    if (!l.readOnly) MarkDirty(Level);
     return D3D_OK;
 }
 
@@ -357,22 +369,25 @@ GLuint Texture::GLTexture() {
         m_dev->BindTextureGL(m_gl);
     }
     if (m_anyDirty && !IsRenderTarget()) {
-        for (UINT i = 0; i < m_levels.size(); i++)
-            if (m_levels[i].dirty) Upload(i);
+        bool pending = false;
+        for (UINT i = 0; i < m_levels.size(); i++) {
+            if (!m_levels[i].dirty) continue;
+            // Locked by another thread, which may be writing it: uploaded after its unlock.
+            if (m_levels[i].locked) pending = true;
+            else Upload(i);
+        }
         if (m_genMips && m_levels.size() > 1) glGenerateMipmap(GL_TEXTURE_2D);
-        m_anyDirty = false;
+        m_anyDirty = pending;
         DropCPUCopy();
     }
     return m_gl;
 }
 
-// Like the static buffers (Buffer::WriteOnly), but after the upload: GL holds the only copy of a
-// level once it is uploaded.
-// Programs rarely lock a texture again after it was used (PORTICO_D3D9_STATS counts it); one that
-// does starts from zeros and is logged. System memory textures (sources of
-// UpdateTexture) keep their copy.
+// With PORTICO_D3D9_DROP_TEXTURE_COPY=1 (see DropTextureCopies), GL holds the only copy of a level once it is
+// uploaded. PORTICO_D3D9_STATS counts the locks that come later. System memory textures (sources of UpdateTexture)
+// and dynamic textures always keep their copy.
 void Texture::DropCPUCopy() {
-    if (KeepCPUCopies() || IsRenderTarget() || m_pool == D3DPOOL_SYSTEMMEM || (m_usage & D3DUSAGE_DYNAMIC)) return;
+    if (!DropTextureCopies() || IsRenderTarget() || m_pool == D3DPOOL_SYSTEMMEM || (m_usage & D3DUSAGE_DYNAMIC)) return;
     for (Level &l : m_levels) {
         if (l.locked || l.dirty || !l.uploaded || l.data.empty()) continue;
         m_cpuBytes -= (int64_t) l.data.size();

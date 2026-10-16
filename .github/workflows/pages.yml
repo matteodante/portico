@@ -40,6 +40,8 @@ jobs:
         run: |
           mkdir -p site
           cp web/index.html site/
+          cp LICENSE site/LICENSE.txt
+          cp samples/LICENSE-Microsoft-DirectX-SDK-Samples.txt site/LICENSE-samples.txt
           cp build/web/samples/*.html build/web/samples/*.js build/web/samples/*.wasm site/
           cp build/web/samples/*.data site/ 2>/dev/null || true
 

@@ -12,7 +12,7 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Feature | Status |
 |---|---|
 | `Direct3DCreate9`, one adapter, display modes, `GetDeviceCaps` | Yes. Caps are constants (the same before and after `CreateDevice`) |
-| `CreateDevice`, `Reset`, windowed back buffer sized from the window's client area | Yes |
+| `CreateDevice`, `Reset`, windowed back buffer sized from the window's client area | Yes. One device per process: a second `CreateDevice` resets the first and keeps its window |
 | `D3DCREATE_MULTITHREADED`: draws from another thread (a loader drawing a loading screen) | Yes: queued and run on the device's thread (`Portico_D3D9_Service`) |
 | `Present`, `Clear`, `BeginScene`/`EndScene`, viewports | Yes |
 | Additional swap chains, `GetSwapChain` | No |
@@ -23,7 +23,7 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 
 | Feature | Status |
 |---|---|
-| 2D textures with mipmaps, `LockRect` (managed, default, system memory pools) | Yes |
+| 2D textures with mipmaps, `LockRect` (managed, default, system memory pools) | Yes. A texture keeps its CPU copy, so a later lock sees its contents (`PORTICO_D3D9_DROP_TEXTURE_COPY=1` trades that for memory) |
 | Formats: `A8R8G8B8`, `X8R8G8B8`, `A8B8G8R8`, `X8B8G8R8`, `R5G6B5`, `A1R5G5B5`, `X1R5G5B5`, `A4R4G4B4`, `X4R4G4B4`, `DXT1`–`DXT5` | Yes. DXT is decompressed in software where the GPU lacks it |
 | Cube and volume textures | No |
 | Vertex and index buffers (static and dynamic, `D3DLOCK_DISCARD`/`NOOVERWRITE`), 16 and 32-bit indices | Yes |
@@ -53,7 +53,7 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Bump-environment mapping (`D3DTOP_BUMPENVMAP*`) | No (computes `ARG1`) |
 | Samplers: filters, mipmaps, anisotropy, wrap/mirror/clamp, border (emulated) | Yes |
 | Alpha test, alpha blending (all blend factors and operations), color write mask | Yes |
-| Depth test and write, depth bias, stencil | Yes |
+| Depth test and write, depth bias, stencil | Yes; two-sided stencil (`D3DRS_TWOSIDEDSTENCILMODE`) no, and the caps do not report it |
 | Fill mode, culling, shading mode | Yes |
 | Scissor test | No (the rectangle is stored, the test is not applied) |
 
@@ -61,7 +61,7 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 
 | Feature | Status |
 |---|---|
-| Vertex and pixel shaders (`CreateVertexShader`, `CreatePixelShader`) | Refused. The caps report shader model 2.0, so programs that need 3.0 use their fixed-function path; programs that need 2.0 shaders do not run yet |
+| Vertex and pixel shaders (`CreateVertexShader`, `CreatePixelShader`) | Refused. The caps report no shader model, so programs with a fixed-function path choose it; programs that need shaders do not run yet |
 | State blocks | No |
 
 ## D3DX 9

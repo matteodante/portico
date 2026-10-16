@@ -153,7 +153,9 @@ HRESULT Direct3D::GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS9 *c
     c->MaxVertexW = 1e10f;
     c->GuardBandLeft = c->GuardBandTop = -1e8f;
     c->GuardBandRight = c->GuardBandBottom = 1e8f;
-    c->StencilCaps = 0x1FF;
+    // Every stencil operation; not D3DSTENCILCAPS_TWOSIDED (the CCW states are not applied yet).
+    c->StencilCaps = D3DSTENCILCAPS_KEEP | D3DSTENCILCAPS_ZERO | D3DSTENCILCAPS_REPLACE | D3DSTENCILCAPS_INCRSAT |
+                     D3DSTENCILCAPS_DECRSAT | D3DSTENCILCAPS_INVERT | D3DSTENCILCAPS_INCR | D3DSTENCILCAPS_DECR;
     c->FVFCaps = 8 | D3DFVFCAPS_PSIZE;
     c->TextureOpCaps = 0x03FFFFFF;
     c->MaxTextureBlendStages = 8;
@@ -169,10 +171,10 @@ HRESULT Direct3D::GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS9 *c
     c->MaxVertexIndex = 0xFFFFFF;
     c->MaxStreams = 16;
     c->MaxStreamStride = 255;
-    c->VertexShaderVersion = D3DVS_VERSION(2, 0);
-    c->MaxVertexShaderConst = 256;
-    c->PixelShaderVersion = D3DPS_VERSION(2, 0);
-    c->PixelShader1xMaxValue = 8.0f;
+    // Fixed function only: no shader model, so programs with a fixed-function path choose it (CreateVertexShader and
+    // CreatePixelShader fail).
+    c->VertexShaderVersion = D3DVS_VERSION(0, 0);
+    c->PixelShaderVersion = D3DPS_VERSION(0, 0);
     c->DevCaps2 = D3DDEVCAPS2_STREAMOFFSET;
     c->MasterAdapterOrdinal = 0;
     c->AdapterOrdinalInGroup = 0;
@@ -180,10 +182,6 @@ HRESULT Direct3D::GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS9 *c
     c->DeclTypes = D3DDTCAPS_UBYTE4 | D3DDTCAPS_UBYTE4N | D3DDTCAPS_SHORT2N | D3DDTCAPS_SHORT4N |
                    D3DDTCAPS_USHORT2N | D3DDTCAPS_USHORT4N | D3DDTCAPS_FLOAT16_2 | D3DDTCAPS_FLOAT16_4;
     c->NumSimultaneousRTs = 1;
-    c->VS20Caps.NumTemps = 12;
-    c->PS20Caps.NumTemps = 12;
-    c->MaxVShaderInstructionsExecuted = 65535;
-    c->MaxPShaderInstructionsExecuted = 512;
     return D3D_OK;
 }
 
@@ -201,8 +199,13 @@ HRESULT Direct3D::CreateDevice(UINT Adapter, D3DDEVTYPE, HWND hFocusWindow, DWOR
     if (Adapter || !pp || !ppDevice) return D3DERR_INVALIDCALL;
     HWND hwnd = pp->hDeviceWindow ? pp->hDeviceWindow : hFocusWindow;
     if (g_device) {
+        // One device per process (see Device::Destroy): a second CreateDevice resets it and keeps its first window.
         Log("CreateDevice: a device already exists, reusing it");
-        g_device->Reset(pp);
+        HRESULT hr = g_device->Reset(pp);
+        if (FAILED(hr)) {
+            *ppDevice = nullptr;
+            return hr;
+        }
         g_device->AddRef();
         *ppDevice = g_device;
         return D3D_OK;

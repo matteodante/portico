@@ -475,6 +475,17 @@ bool ParsePng(const BYTE *p, UINT size, Image &img, bool decode)
     img.width = w;
     img.height = h;
     img.format = color == 4 || color == 6 ? D3DFMT_A8R8G8B8 : D3DFMT_X8R8G8B8;
+    // A palette with a tRNS chunk has alpha too (it comes before the image data).
+    if (color == 3)
+        for (UINT off = 8; off + 12 <= size;) {
+            UINT len = Be32(p + off);
+            const BYTE *type = p + off + 4;
+            if (!memcmp(type, "tRNS", 4))
+                img.format = D3DFMT_A8R8G8B8;
+            if (!memcmp(type, "tRNS", 4) || !memcmp(type, "IDAT", 4) || off + 12 + (size_t)len > size)
+                break;
+            off += 12 + len;
+        }
     if (!decode)
         return true;
     if (interlace) {

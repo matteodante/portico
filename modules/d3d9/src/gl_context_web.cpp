@@ -2,9 +2,10 @@
 //
 // The thread that creates the device owns the context; no GL call ever waits for another thread. Two setups work:
 //   - the program on the page's main thread (the default): the context is the page's #canvas;
-//   - the program on a worker (-sPROXY_TO_PTHREAD, portico_d3d9_worker): #canvas is transferred to the worker as an
+//   - the program on a worker (-pthread -sPROXY_TO_PTHREAD): #canvas is transferred to the worker as an
 //     OffscreenCanvas (-sOFFSCREENCANVAS_SUPPORT, -sOFFSCREENCANVASES_TO_PTHREAD) and the context is created there,
 //     with proxying to the main thread disallowed. Programs that block (Sleep, waits on a loader thread) need this.
+//     The build does not offer it yet: portico::win32 still reaches the page (window, input) from the program's thread.
 //
 // Presentation: the browser shows the canvas when the owning thread returns to its event loop. A program written for
 // Windows never does (its loop runs forever), so after every Present this thread waits for the next animation frame

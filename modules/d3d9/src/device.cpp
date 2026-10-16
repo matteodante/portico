@@ -462,8 +462,8 @@ HRESULT Device::CreateVertexDeclaration(CONST D3DVERTEXELEMENT9 *pVertexElements
     return D3D_OK;
 }
 
-// Vertex and pixel shaders are refused: the device reports no VS/PS 3.0, and programs written for
-// fixed-function hardware fall back to the fixed-function pipeline (vertex blending included).
+// Vertex and pixel shaders are refused: the caps report no shader model, and programs written for
+// fixed-function hardware use the fixed-function pipeline (vertex blending included).
 HRESULT Device::CreateVertexShader(CONST DWORD *, IDirect3DVertexShader9 **ppShader) {
     if (ppShader) *ppShader = nullptr;
     D3D9GL_ONCE("CreateVertexShader refused (fixed-function only)");
@@ -1167,11 +1167,13 @@ void Device::StretchGL(Surface *src, RECT sr, Surface *dst, RECT dr, D3DTEXTUREF
             return;
         }
         GLuint tex = t->GLTexture();
+        // GetFramebuffer binds GL_FRAMEBUFFER when it creates one: get it before binding the read side.
+        GLuint dstFBO = GetFramebuffer(dst, nullptr);
         GLuint fbo = 0;
         glGenFramebuffers(1, &fbo);
         glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
         glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, src->Level());
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GetFramebuffer(dst, nullptr));
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFBO);
         glDisable(GL_SCISSOR_TEST);
         glBlitFramebuffer(sr.left, sr.top, sr.right, sr.bottom, dr.left, dr.top, dr.right, dr.bottom, GL_COLOR_BUFFER_BIT,
                           filter == D3DTEXF_POINT ? GL_NEAREST : GL_LINEAR);
@@ -1179,8 +1181,10 @@ void Device::StretchGL(Surface *src, RECT sr, Surface *dst, RECT dr, D3DTEXTUREF
         m_boundFBO = ~0u;
         return;
     }
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, GetFramebuffer(src, nullptr));
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GetFramebuffer(dst, nullptr));
+    // Both framebuffers first: GetFramebuffer binds GL_FRAMEBUFFER (read and draw) when it creates one.
+    GLuint srcFBO = GetFramebuffer(src, nullptr), dstFBO = GetFramebuffer(dst, nullptr);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFBO);
     glDisable(GL_SCISSOR_TEST);
     glBlitFramebuffer(sr.left, sr.top, sr.right, sr.bottom, dr.left, dr.top, dr.right, dr.bottom, GL_COLOR_BUFFER_BIT,
                       filter == D3DTEXF_POINT || filter == D3DTEXF_NONE ? GL_NEAREST : GL_LINEAR);

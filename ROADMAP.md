@@ -6,6 +6,7 @@ that game.
 
 | Next | What | Status in the original port |
 |---|---|---|
+| Worker setup | The program on a pthread with an `OffscreenCanvas` and the page's input forwarded to it, for programs that block | Done, to be extracted |
 | Win32, complete | Threads and synchronization (fair critical sections), files, registry (kept in browser storage), code pages, IME, timers, resources from `.rc` files | Done, to be extracted |
 | MFC subset (`afx`) | `CString`, `CFile`, `CArchive` (byte-compatible with MFC), runtime classes, `CWinApp`, message maps | Done, to be extracted |
 | DirectSound 8 | 2D and 3D sound on miniaudio and Web Audio, with the 3D model measured on the real DirectSound | Done, to be extracted |

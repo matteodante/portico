@@ -38,10 +38,9 @@ Things to check:
   `--preload-file`; large ones need a file system backed by the network or by the browser's storage (OPFS).
   Paths with backslashes are accepted by Portico's D3DX loaders; for your own `fopen` calls, convert them or use
   forward slashes.
-- **Blocking.** If the program blocks anywhere other than `Present` and `GetMessage` (`Sleep` in a loop, waiting for
-  its own threads), link `portico::d3d9_worker` and serve the page cross-origin isolated (see
-  [architecture.md](architecture.md#two-thread-setups)). `Sleep` works on the main thread too, but a long one
-  freezes the page.
+- **Blocking.** The program runs on the page's main thread, and only `Present` and `GetMessage` give the thread
+  back to the browser. `Sleep` works, but a long one freezes the page; a program that waits for its own threads
+  needs the worker setup, which is not in v0.1 yet (see [architecture.md](architecture.md#threads)).
 - **Stack.** Windows threads start with 1 MB of stack; `portico::win32` sets the same (`-sSTACK_SIZE=1MB`).
   Programs with large local arrays may need more.
 - **Text.** `wchar_t` is 32 bits in Emscripten and 16 on Windows. Source that uses `L"..."` and the W functions

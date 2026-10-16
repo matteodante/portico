@@ -49,8 +49,9 @@ The details are in [docs/supported-api.md](docs/supported-api.md).
 A program written for Windows never gives control back: its main loop runs forever. Portico keeps that loop as it
 is and, after every `Present`, suspends the program's WebAssembly stack until the browser's next animation frame,
 using [JSPI](https://v8.dev/blog/jspi) (WebAssembly JavaScript Promise Integration). The browser shows the frame
-and runs its events; `Present` returns; the loop goes on. Programs that also block (`Sleep`, waiting for a loader
-thread) run on a worker, where the canvas becomes an `OffscreenCanvas` owned by that thread.
+and runs its events; `Present` returns; the loop goes on. Programs that also block elsewhere (`Sleep` in a loop,
+waiting for a loader thread) will run on a worker, where the canvas becomes an `OffscreenCanvas` owned by that
+thread: that setup is [next](ROADMAP.md).
 
 More in [docs/architecture.md](docs/architecture.md).
 

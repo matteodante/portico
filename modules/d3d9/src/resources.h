@@ -117,6 +117,7 @@ public:
         std::vector<uint8_t> data;
         bool dirty = false;
         bool locked = false;
+        bool readOnly = false;  // the current lock is D3DLOCK_READONLY: its unlock uploads nothing
         bool uploaded = false;  // its contents went to GL
         bool dropped = false;   // its CPU copy was freed after the upload
     };

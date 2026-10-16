@@ -1,6 +1,5 @@
 # Portico D3D9: Direct3D 9 (fixed function) on OpenGL ES 3.
-#   Browser (Emscripten): WebGL2 on the page's #canvas, the program on the main thread (portico::d3d9), or on a
-#                         worker with an OffscreenCanvas (also link portico::d3d9_worker).
+#   Browser (Emscripten): WebGL2 on the page's #canvas, the program on the page's main thread.
 #   Native (Windows):     ANGLE's GLES3 in WebGL-compatibility mode, the same code as in the browser, for debugging
 #                         and for comparing with the system's Direct3D 9. ANGLE comes from PORTICO_ANGLE_DIR
 #                         (include/, lib/, bin/) or from vcpkg's "angle" port (find_package(unofficial-angle)).
@@ -29,13 +28,6 @@ if(EMSCRIPTEN)
     target_link_libraries(portico_d3d9 PUBLIC portico_win32_headers)
     # Present waits for the next animation frame through JSPI (src/gl_context_web.cpp).
     target_link_options(portico_d3d9 INTERFACE -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2 -sJSPI)
-
-    # The program on a worker: #canvas becomes an OffscreenCanvas of that thread.
-    add_library(portico_d3d9_worker INTERFACE)
-    add_library(portico::d3d9_worker ALIAS portico_d3d9_worker)
-    target_compile_options(portico_d3d9_worker INTERFACE -pthread)
-    target_link_options(portico_d3d9_worker INTERFACE -pthread -sPROXY_TO_PTHREAD -sOFFSCREENCANVAS_SUPPORT=1
-        "-sOFFSCREENCANVASES_TO_PTHREAD=#canvas")
     return()
 endif()
 
