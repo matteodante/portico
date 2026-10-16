@@ -12,6 +12,12 @@ the identity, a quaternion and the matrix built from it rotate the same way, the
 origin, the projections take the near plane to depth 0 and the far plane to 1, reflecting twice is the identity,
 and so on.
 
+Where the documentation leaves the answer open (a reflection or a zero scale in `D3DXMatrixDecompose`, a shear, a
+ray almost parallel to a triangle), the expected values are the answers of the system's `d3dx9_43.dll` for the same
+inputs, marked as such in the test. They come from calling the DLL as a black box (Python with `ctypes` on
+Windows), only the copy that Windows or the DirectX redistributable installs. Only its outputs are compared; Portico's
+code does not come from it.
+
 ## Screenshot parity
 
 Every sample is rendered from the same source three ways, with `timeGetTime()` frozen so that every frame is the
