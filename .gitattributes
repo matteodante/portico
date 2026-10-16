@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.bmp binary
+*.bat text eol=crlf
+# Microsoft's samples stay byte for byte as published.
+samples/Tut0*/** -text

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: Browser build, tests and parity
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: mymindstorm/setup-emsdk@v16
+        with:
+          version: 6.0.12
+          actions-cache-folder: emsdk-cache
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y ninja-build
+          python -m pip install pillow
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Build (time frozen for the screenshots)
+        run: |
+          emcmake cmake -S . -B build/web-fixed -G Ninja -DCMAKE_BUILD_TYPE=Release -DPORTICO_SAMPLES_FIXED_TIME=1234
+          cmake --build build/web-fixed
+
+      - name: Unit tests
+        run: ctest --test-dir build/web-fixed --output-on-failure
+
+      - name: Samples in Chromium (SwiftShader)
+        run: node tools/browser_shots.mjs --dir build/web-fixed/samples --out build/shots/chromium
+
+      - name: Parity with Direct3D 9
+        run: python tools/parity.py tests/reference/d3d9 build/shots/chromium
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshots
+          path: build/shots

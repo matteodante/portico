@@ -1,0 +1,30 @@
+name: Bug report
+description: Something renders or behaves differently from Windows.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected (as on Windows) and what you got. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The program (or a small one that shows the problem), and the calls involved if you know them.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version (or native build)
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Console output
+      description: The `[portico-d3d9]` lines of the browser console, or the PORTICO_D3D9_LOG file natively.
+      render: text

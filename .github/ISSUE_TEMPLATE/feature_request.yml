@@ -1,0 +1,16 @@
+name: Feature request
+description: An API or a feature a program needs.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What the program needs
+      description: The Windows or Direct3D call, the arguments, and what the program does with it.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: The program, and anything else that helps.
