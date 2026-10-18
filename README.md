@@ -51,9 +51,9 @@ The details are in [docs/supported-api.md](docs/supported-api.md).
 A program written for Windows never gives control back: its main loop runs forever. Portico keeps that loop as it
 is and, after every `Present`, suspends the program's WebAssembly stack until the browser's next animation frame,
 using [JSPI](https://v8.dev/blog/jspi) (WebAssembly JavaScript Promise Integration). The browser shows the frame
-and runs its events; `Present` returns; the loop goes on. Programs that also block elsewhere (`Sleep` in a loop,
-waiting for a loader thread) will run on a worker, where the canvas becomes an `OffscreenCanvas` owned by that
-thread: that setup is [next](ROADMAP.md).
+and runs its events; `Present` returns; the loop goes on. `GetMessage` and `Sleep` also yield through JSPI.
+Long CPU work and waits that do not yield can still stall the page. A worker setup, with the canvas transferred
+to that thread as an `OffscreenCanvas`, is [next](ROADMAP.md).
 
 More in [docs/architecture.md](docs/architecture.md).
 
@@ -137,8 +137,10 @@ Issues and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Se
 ## License
 
 [Mozilla Public License 2.0](LICENSE), copyright (c) 2026 Matteo Dante. Portico can be used in any program, open or
-closed, free or commercial. If you distribute modified Portico files, make their source available under the same
-license; private modifications do not have to be published. Third-party components
+closed, free or commercial. When distributing Portico binaries, make the corresponding MPL-covered source,
+including any changes, available under MPL-2.0 and tell recipients how to obtain it. Distributed source stays
+under MPL-2.0; separate application files containing no MPL-covered code can keep their own licenses.
+Private modifications do not have to be published. Third-party components
 and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the samples are Microsoft's, under
 the MIT license.
 
