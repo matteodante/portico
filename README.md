@@ -9,6 +9,8 @@ pipeline) on top of what a browser offers, so the program's own code compiles un
 
 **[Live demo](https://matteodante.it/portico-demo/index.html)** — Microsoft's Direct3D 9 tutorials 1–5, compiled unchanged.
 
+[Technical article: running Direct3D 9 C++ programs in the browser](https://matteodante.it/en/blog/portico-direct3d9-webgl2).
+
 | | | | | |
 |---|---|---|---|---|
 | ![Tutorial 1](tests/reference/d3d9/tut01_createdevice.png) | ![Tutorial 2](tests/reference/d3d9/tut02_vertices.png) | ![Tutorial 3](tests/reference/d3d9/tut03_matrices.png) | ![Tutorial 4](tests/reference/d3d9/tut04_lights.png) | ![Tutorial 5](tests/reference/d3d9/tut05_textures.png) |
