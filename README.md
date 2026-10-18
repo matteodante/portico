@@ -25,7 +25,7 @@ program, not a rewrite**. It keeps the program's own threads, loops and blocking
 expects.
 
 Portico was extracted from a private port of a whole 2000s Windows MMO client (about 400,000 lines of C++ using
-MFC, Win32, Direct3D 9 and DirectSound) to the browser, which runs there against its original servers. The pieces
+MFC, Win32, Direct3D 9 and DirectSound) to the browser, tested against a private local server instance. The pieces
 that are not specific to that program are being published here, one module at a time. How that port was done, and
 what was measured, is in the write-up: [Porting a 400,000-line Windows MMO client to the browser without rewriting
 it](https://github.com/matteodante/matteodante/blob/main/articles/porting-a-windows-mmo-client-to-the-browser.md).
@@ -137,7 +137,8 @@ Issues and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Se
 ## License
 
 [Mozilla Public License 2.0](LICENSE), copyright (c) 2026 Matteo Dante. Portico can be used in any program, open or
-closed, free or commercial; changes to Portico's own files are shared under the same license. Third-party components
+closed, free or commercial. If you distribute modified Portico files, make their source available under the same
+license; private modifications do not have to be published. Third-party components
 and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the samples are Microsoft's, under
 the MIT license.
 

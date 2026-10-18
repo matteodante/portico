@@ -30,7 +30,7 @@ function(portico_sample name source)
         target_compile_options(${name} PRIVATE -Wno-nonportable-include-path)
         set_target_properties(${name} PROPERTIES SUFFIX ".html")
         target_link_options(${name} PRIVATE "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/shell.html"
-            -sALLOW_MEMORY_GROWTH=1 -sEXIT_RUNTIME=0 -sENVIRONMENT=web --profiling-funcs)
+            -sALLOW_MEMORY_GROWTH=1 -sEXIT_RUNTIME=0 -sENVIRONMENT=web -sEMIT_EMSCRIPTEN_LICENSE=1 --profiling-funcs)
         set_property(TARGET ${name} APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/shell.html")
     else()
         set_target_properties(${name} PROPERTIES WIN32_EXECUTABLE ON)

@@ -54,8 +54,8 @@ with `-sJSPI`; Portico's targets add that flag.
 ## Threads
 
 **Main thread (v0.1).** The program runs on the page's main thread; `#canvas` holds the WebGL2 context. It
-needs no special HTTP headers, so it works on any static host (the demo runs on GitHub Pages). It suits programs
-that never block except in `Present`/`GetMessage`.
+needs no special HTTP headers, so it works on static hosts. The demo runs on matteodante.it; GitHub Pages is an
+optional manual deployment. It suits programs that never block except in `Present`/`GetMessage`.
 
 **Worker (next).** Programs that block elsewhere (`Sleep` in a loop, a game waiting for its loader thread) need to
 run on a pthread (`-sPROXY_TO_PTHREAD`), with `#canvas` transferred to that thread as an `OffscreenCanvas` and the

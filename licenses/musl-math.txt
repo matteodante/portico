@@ -1,0 +1,95 @@
+Additional notices for musl math in the browser samples.
+
+
+Files: sinf.c, cosf.c, __sindf.c, __cosdf.c, __rem_pio2f.c, tanf.c
+
+Source: https://github.com/emscripten-core/emscripten/tree/6.0.12/system/lib/libc/musl/src/math
+
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunPro, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */
+
+Files: __rem_pio2_large.c
+
+Source: https://github.com/emscripten-core/emscripten/tree/6.0.12/system/lib/libc/musl/src/math
+
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */
+
+Files: __tandf.c
+
+Source: https://github.com/emscripten-core/emscripten/tree/6.0.12/system/lib/libc/musl/src/math
+
+/*
+ * ====================================================
+ * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
+ *
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */
+
+Additional credits in sinf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */
+
+Additional credits in cosf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */
+
+Additional credits in __sindf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */
+
+Additional credits in __cosdf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Debugged and optimized by Bruce D. Evans.
+ */
+
+Additional credits in __rem_pio2f.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Debugged and optimized by Bruce D. Evans.
+ */
+
+Additional credits in tanf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */
+
+Additional credits in __tandf.c:
+
+/*
+ * Conversion to float by Ian Lance Taylor, Cygnus Support, ian@cygnus.com.
+ * Optimized by Bruce D. Evans.
+ */

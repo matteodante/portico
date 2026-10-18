@@ -5,6 +5,11 @@ minor version may change the API.
 
 ## [Unreleased]
 
+### Fixed
+- Package browser samples with the Emscripten, musl and zlib license notices; preserve the Emscripten notice in
+  generated JavaScript. The optional GitHub Pages deployment is manual while the demo is hosted on matteodante.it.
+- Describe the D3DX black-box expected values and the MPL's distribution condition accurately.
+
 ### Added
 - `portico::d3dx`: `D3DXMatrixTransformation`, `D3DXMatrixTransformation2D`, `D3DXMatrixDecompose`,
   `D3DXQuaternionLn`, and the ray tests `D3DXIntersectTri` and `D3DXSphereBoundProbe` (new `d3dx9mesh.h`), with

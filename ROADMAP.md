@@ -1,7 +1,7 @@
 # Roadmap
 
 Portico grows by extracting the rest of the platform layer of a complete port (a 2000s Windows MMO client running
-in the browser against its original servers), one module at a time, each with its own tests on programs that are not
+in the browser against a private local server instance), one module at a time, each with its own tests on programs that are not
 that game.
 
 | Next | What | Status in the original port |

@@ -1,8 +1,7 @@
 name: Demo
 
+# The demo is hosted on matteodante.it. Enable Pages before dispatching this optional deployment.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -36,14 +35,8 @@ jobs:
           emcmake cmake -S . -B build/web -G Ninja -DCMAKE_BUILD_TYPE=Release -DPORTICO_BUILD_TESTS=OFF
           cmake --build build/web
 
-      - name: Site
-        run: |
-          mkdir -p site
-          cp web/index.html site/
-          cp LICENSE site/LICENSE.txt
-          cp samples/LICENSE-Microsoft-DirectX-SDK-Samples.txt site/LICENSE-samples.txt
-          cp build/web/samples/*.html build/web/samples/*.js build/web/samples/*.wasm site/
-          cp build/web/samples/*.data site/ 2>/dev/null || true
+      - name: Site and license notices
+        run: python3 tools/package_demo.py --samples build/web/samples --out site
 
       - uses: actions/upload-pages-artifact@v5
         with:

@@ -2,3 +2,13 @@ build/
 node_modules/
 *.user
 .vs/
+
+# Local credentials never belong in a public checkout.
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.p12
+*.pfx
+*.key

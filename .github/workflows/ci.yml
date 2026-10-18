@@ -50,6 +50,9 @@ jobs:
       - name: Parity with Direct3D 9
         run: python tools/parity.py tests/reference/d3d9 build/shots/chromium
 
+      - name: Package samples with license notices
+        run: python tools/package_demo.py --samples build/web-fixed/samples --out build/demo
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -58,3 +58,23 @@ cmake --build build/web-fixed
 node tools/browser_shots.mjs --dir build/web-fixed/samples --out build/shots/browser
 python tools/parity.py tests/reference/d3d9 build/shots/browser
 ```
+
+## Packaging the demo
+
+Build the normal browser samples with the pinned SDK, then package the complete
+static site:
+
+```sh
+python tools/package_demo.py --samples build/web/samples --out build/demo
+```
+
+The command checks all five samples and the texture data before copying them.
+Deploy the whole output directory: `index.html`, all sample artifacts,
+`LICENSE.txt`, `LICENSE-samples.txt` and `THIRD-PARTY-LICENSES.txt`. The latter
+contains the Emscripten, musl (including math) and zlib notices from
+[`licenses/`](../licenses/README.md). Recheck those texts when changing SDKs.
+Generated sample JavaScript also retains the Emscripten license notice.
+
+The live demo is hosted on matteodante.it. The optional `Demo` workflow is
+manual: enable GitHub Pages with GitHub Actions as its source before dispatching
+it. CI packages the fixed-time samples without deploying them.

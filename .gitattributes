@@ -4,3 +4,6 @@
 *.bat text eol=crlf
 # Microsoft's samples stay byte for byte as published.
 samples/Tut0*/** -text
+
+# Keep upstream license text, including its original whitespace.
+licenses/*.txt -whitespace
