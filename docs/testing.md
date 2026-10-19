@@ -75,6 +75,27 @@ contains the Emscripten, musl (including math) and zlib notices from
 [`licenses/`](../licenses/README.md). Recheck those texts when changing SDKs.
 Generated sample JavaScript also retains the Emscripten license notice.
 
-The live demo is hosted on matteodante.it. The optional `Demo` workflow is
-manual: enable GitHub Pages with GitHub Actions as its source before dispatching
-it. CI packages the fixed-time samples without deploying them.
+## Live demo
+
+The live demo is hosted at [matteodante.it/portico-demo](https://matteodante.it/portico-demo/index.html).
+Publishing those files is managed separately from this repository; GitHub Pages is not used.
+CI builds and tests the current source and packages the fixed-time samples without deploying them.
+
+The **Live demo** workflow runs on pushes to `main` and can also be started manually after a site update.
+It checks the published index, tutorial links and license texts, then opens all five tutorials in Chromium,
+checks their JavaScript/WebAssembly/data loads, and waits for actual WebGL rendering without browser errors.
+Screenshots are attached to the workflow run. To run the same check locally:
+
+```sh
+npm ci
+npx playwright install chromium
+node tools/check_demo.mjs
+```
+
+An optional URL argument checks another hosted package, for example
+`node tools/check_demo.mjs http://127.0.0.1:8080/index.html`.
+
+GitHub's `matteodante.it` environment links to the live demo. A successful environment check means the
+published demo passed these checks; it does **not** mean the workflow uploaded a new build or that the live
+binaries match the checked-out commit. Source/rendering parity remains the separate CI check described above.
+The former Pages workflow has been retired; its failed runs are historical attempts to use an unconfigured host.

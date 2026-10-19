@@ -1,5 +1,8 @@
 # Portico
 
+[![CI](https://github.com/matteodante/portico/actions/workflows/ci.yml/badge.svg)](https://github.com/matteodante/portico/actions/workflows/ci.yml)
+[![Live demo](https://github.com/matteodante/portico/actions/workflows/demo.yml/badge.svg)](https://github.com/matteodante/portico/actions/workflows/demo.yml)
+
 **Run Direct3D 9 C++ programs in the browser, from source, without rewriting them.**
 
 Portico implements the Windows APIs an old C++ game or tool calls (starting with Direct3D 9's fixed-function
@@ -8,6 +11,9 @@ pipeline) on top of what a browser offers, so the program's own code compiles un
 [ANGLE](https://chromium.googlesource.com/angle/angle), where it is tested against the real Direct3D 9 runtime.
 
 **[Live demo](https://matteodante.it/portico-demo/index.html)** — Microsoft's Direct3D 9 tutorials 1–5, compiled unchanged.
+
+The demo is hosted on matteodante.it. The **Live demo** check verifies the published tutorials and license notices;
+the **CI** check builds and tests the source in this repository. See [hosting and checks](docs/testing.md#live-demo).
 
 [Technical article: running Direct3D 9 C++ programs in the browser](https://matteodante.it/en/blog/portico-direct3d9-webgl2).
 

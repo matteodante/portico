@@ -55,9 +55,9 @@ with `-sJSPI`; Portico's targets add that flag.
 ## Threads
 
 **Main thread (v0.1).** The program runs on the page's main thread; `#canvas` holds the WebGL2 context. It
-needs no special HTTP headers, so it works on static hosts. The demo runs on matteodante.it; GitHub Pages is an
-optional manual deployment. `Present`, `GetMessage` and `Sleep` yield to the browser; long CPU work and
-non-yielding waits can still stall the page.
+needs no special HTTP headers, so it works on static hosts. The demo runs on matteodante.it and is checked by the
+Live demo workflow ([details](testing.md#live-demo)). `Present`, `GetMessage` and `Sleep` yield to the browser;
+long CPU work and non-yielding waits can still stall the page.
 
 **Worker (next).** For programs that need blocking waits or long CPU work, the planned setup runs the program
 on a pthread (`-sPROXY_TO_PTHREAD`), with `#canvas` transferred to that thread as an `OffscreenCanvas` and the

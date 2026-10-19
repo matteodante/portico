@@ -1,0 +1,56 @@
+name: Live demo
+
+# The site is published separately on matteodante.it. This workflow verifies it;
+# it does not upload files or deploy the repository's current commit to that host.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-demo
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify demo on matteodante.it
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: matteodante.it
+      url: https://matteodante.it/portico-demo/index.html
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Browser tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Check the published demo, licenses and all five samples
+        run: node tools/check_demo.mjs
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: live-demo-screenshots
+          path: build/shots/live-demo
+
+      - name: Summary
+        if: success()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          Verified [the published demo](https://matteodante.it/portico-demo/index.html):
+          all five tutorials render in Chromium and the distribution includes its license notices.
+
+          Hosting is managed separately on matteodante.it. This run checks the live site;
+          it does not publish a build or establish which source commit the live binaries use.
+          EOF
