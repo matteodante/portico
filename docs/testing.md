@@ -98,4 +98,6 @@ An optional URL argument checks another hosted package, for example
 GitHub's `matteodante.it` environment links to the live demo. A successful environment check means the
 published demo passed these checks; it does **not** mean the workflow uploaded a new build or that the live
 binaries match the checked-out commit. Source/rendering parity remains the separate CI check described above.
+After a successful live check, a maintenance job marks completed deployments of the former `github-pages`
+environment inactive, preserving their history. Only that job has `deployments: write` permission.
 The former Pages workflow has been retired; its failed runs are historical attempts to use an unconfigured host.

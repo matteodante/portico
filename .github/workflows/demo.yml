@@ -54,3 +54,41 @@ jobs:
           Hosting is managed separately on matteodante.it. This run checks the live site;
           it does not publish a build or establish which source commit the live binaries use.
           EOF
+
+  retire-pages:
+    name: Retire obsolete Pages deployments
+    needs: verify
+    if: github.repository == 'matteodante/portico'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    permissions:
+      deployments: write
+    steps:
+      - name: Mark the old host inactive, preserving its history
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repo = 'repos/' + os.environ['GH_REPO']
+
+          def api(path, *args):
+              return json.loads(subprocess.check_output(['gh', 'api', path, *args]))
+
+          pages = api(f'{repo}/deployments?environment=github-pages&per_page=100', '--paginate', '--slurp')
+          for deployments in pages:
+              for deployment in deployments:
+                  if deployment['environment'] != 'github-pages':
+                      continue
+                  path = f'{repo}/deployments/{deployment["id"]}/statuses'
+                  statuses = api(path)
+                  if not statuses or statuses[0]['state'] not in ('success', 'failure', 'error'):
+                      continue
+                  api(path, '--method', 'POST', '-f', 'state=inactive', '-F', 'auto_inactive=false',
+                      '-f', 'description=Retired Pages host; live demo verified on matteodante.it.')
+                  print(f'Retired Pages deployment {deployment["id"]}')
+          PY
