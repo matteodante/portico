@@ -72,6 +72,8 @@ More in [docs/architecture.md](docs/architecture.md).
 ## Browser support
 
 JSPI is required: **Chrome and Edge 137+, Firefox 153+, Safari 27+** (Safari has not been tested yet).
+These JSPI version thresholds match [MDN compatibility data](https://github.com/mdn/browser-compat-data/blob/main/webassembly/jspi.json),
+checked on 2026-10-19; they do not establish Portico compatibility for every browser/GPU combination.
 
 ## Quick start
 

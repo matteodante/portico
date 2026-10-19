@@ -3,8 +3,9 @@
 What `portico::d3d9` and `portico::d3dx` implement in v0.1. This is a feature summary, not a complete per-method
 conformance matrix. Future work and dependencies are tracked in the [ecosystem coverage plan](ecosystem-coverage.md)
 and [roadmap](../ROADMAP.md). "Ignored" means the call succeeds and does nothing;
-"refused" means it fails the way Direct3D 9 fails on hardware without the feature, so programs take their fallback
-path. Many unsupported paths log one line the first time (`[portico-d3d9] ...` in the browser console,
+"refused" means the call returns a failure, allowing a fallback where the application handles it. Exact HRESULTs and
+invalid-input behavior still need the per-method audit; this label alone does not establish native equivalence.
+Many unsupported paths log one line the first time (`[portico-d3d9] ...` in the browser console,
 `PORTICO_D3D9_LOG=<file>` natively), but some inline stubs do not log. A successful return alone does not establish support.
 
 ## Direct3D 9
