@@ -3,6 +3,11 @@
 How to bring a Direct3D 9 C++ program to the browser with Portico. The samples in `samples/` are complete examples:
 Microsoft's tutorials, built unchanged.
 
+Before starting a full game port, inventory its API calls, dependency versions, plugins and asset formats using the
+[ecosystem coverage plan](ecosystem-coverage.md). Direct3D 9 support alone does not establish that its input, audio,
+networking, video or Windows framework dependencies are available. Record each missing dependency even if the first
+scene renders; distinguish public support from components awaiting extraction from the original private port.
+
 ## 1. Build it natively against Portico first
 
 Before the browser, link the program against Portico on Windows: `portico::d3d9` (over ANGLE) instead of
@@ -18,7 +23,8 @@ Compare with the real thing: build the program once more against `d3d9.lib`, cap
 (`tools/capture_window.py`) and compare them (`tools/compare_shots.py`). Make the frame deterministic first: the
 samples freeze `timeGetTime()` with a forced include (`samples/fixed_time.h`).
 
-Set `PORTICO_D3D9_LOG=<file>` to get the layer's log: every unsupported call is logged once. Natively Portico runs
+Set `PORTICO_D3D9_LOG=<file>` to get the layer's log: many unsupported paths are logged once, but some stubs are silent.
+Consult [supported-api.md](supported-api.md) as well. Natively Portico runs
 on ANGLE's Direct3D 11 backend, like Chrome on Windows; `PORTICO_ANGLE_BACKEND=vulkan` or `gl` changes it.
 
 ## 2. Build it with Emscripten

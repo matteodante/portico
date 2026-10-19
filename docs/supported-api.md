@@ -1,9 +1,11 @@
 # Supported API
 
-What `portico::d3d9` and `portico::d3dx` implement in v0.1. "Ignored" means the call succeeds and does nothing;
+What `portico::d3d9` and `portico::d3dx` implement in v0.1. This is a feature summary, not a complete per-method
+conformance matrix. Future work and dependencies are tracked in the [ecosystem coverage plan](ecosystem-coverage.md)
+and [roadmap](../ROADMAP.md). "Ignored" means the call succeeds and does nothing;
 "refused" means it fails the way Direct3D 9 fails on hardware without the feature, so programs take their fallback
-path. A call that is not implemented logs one line the first time (`[portico-d3d9] ...` in the browser console,
-`PORTICO_D3D9_LOG=<file>` natively).
+path. Many unsupported paths log one line the first time (`[portico-d3d9] ...` in the browser console,
+`PORTICO_D3D9_LOG=<file>` natively), but some inline stubs do not log. A successful return alone does not establish support.
 
 ## Direct3D 9
 
@@ -18,6 +20,9 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Additional swap chains, `GetSwapChain` | No |
 | `GetFrontBufferData`, `ProcessVertices`, queries (`CreateQuery`) | No (refused) |
 | Device loss | A lost WebGL context is reported once to the page (`Module.onWebGLContextLost`); nothing is restored, and `TestCooperativeLevel` always returns `D3D_OK` |
+| Multisampling | No. `CheckDeviceMultiSampleType` refuses modes other than `D3DMULTISAMPLE_NONE` |
+| Gamma ramps, hardware cursor, raster status | Gamma ramps are stored/read back but not applied. Cursor methods are stubs; raster status is synthetic |
+| Capability/format checks | Partial: several `Check*` methods return success without checking the requested combination; capabilities still need a full consistency audit |
 
 ### Resources
 
@@ -27,9 +32,13 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Formats: `A8R8G8B8`, `X8R8G8B8`, `A8B8G8R8`, `X8B8G8R8`, `R5G6B5`, `A1R5G5B5`, `X1R5G5B5`, `A4R4G4B4`, `X4R4G4B4`, `DXT1`–`DXT5` | Yes. DXT is decompressed in software where the GPU lacks it |
 | Cube and volume textures | No |
 | Vertex and index buffers (static and dynamic, `D3DLOCK_DISCARD`/`NOOVERWRITE`), 16 and 32-bit indices | Yes |
-| Render target textures, depth-stencil surfaces, `SetRenderTarget`, `GetRenderTargetData` | Yes |
+| Render target textures, depth-stencil surfaces, `SetRenderTarget`, `GetRenderTargetData` | Yes for the supported combinations, with one render target (slot 0); no multiple render targets |
 | `StretchRect`, `UpdateSurface`, `UpdateTexture`, `ColorFill` | Common cases; some surface combinations are not supported (logged) |
 | FVF and vertex declarations, up to 16 streams | Yes |
+| Instancing through `SetStreamSourceFreq` | No. The setter is a no-op and the getter reports 1 |
+| Resource private data, auto-generation filter selection | Private-data setters/free are no-ops and reads return not found. Auto-generation filter changes are ignored; the getter reports linear |
+| Palettes, N-patches, rectangular/triangular patches, surface `GetDC`/`ReleaseDC` | Not implemented; calls are refused or stubbed |
+| Floating-point, alpha/luminance and depth format variants | Some are listed in the format table; complete upload/lock/conversion behavior is not established here. Floating-point entries are not marked renderable; audit per format and usage before relying on them |
 
 ### Fixed-function vertex pipeline
 
@@ -52,10 +61,13 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | 8 texture stages, color and alpha operations and arguments, `D3DTA_TEMP`, `D3DTA_TFACTOR`, `D3DTA_SPECULAR` | Yes |
 | Bump-environment mapping (`D3DTOP_BUMPENVMAP*`) | No (computes `ARG1`) |
 | Samplers: filters, mipmaps, anisotropy, wrap/mirror/clamp, border (emulated) | Yes |
+| `MIRRORONCE` addressing | Partial: mapped to mirrored repeat, not the exact mirror-once behavior |
 | Alpha test, alpha blending (all blend factors and operations), color write mask | Yes |
 | Depth test and write, depth bias, stencil | Yes; two-sided stencil (`D3DRS_TWOSIDEDSTENCILMODE`) no, and the caps do not report it |
-| Fill mode, culling, shading mode | Yes |
+| Culling | Yes |
+| Fill mode and shading mode | Solid fill and Gouraud interpolation are the current path. Other requested fill/shading modes are stored but not applied |
 | Scissor test | No (the rectangle is stored, the test is not applied) |
+| sRGB texture reads/render-target writes | No. sRGB usage queries are refused; the corresponding states do not implement conversion |
 
 ### Shaders and state blocks
 
@@ -63,6 +75,7 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 |---|---|
 | Vertex and pixel shaders (`CreateVertexShader`, `CreatePixelShader`) | Refused. The caps report no shader model, so programs with a fixed-function path choose it; programs that need shaders do not run yet |
 | State blocks | No |
+| Shader constants | Setters are stubs and getters fail; there is no programmable shader execution |
 
 ## D3DX 9
 
@@ -73,9 +86,11 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Vector functions: normalize, transform (coord, normal), project, unproject | Yes |
 | Quaternion functions: normalize, inverse, multiply, from axis/matrix/yaw-pitch-roll, slerp, to axis-angle | Yes |
 | Plane and color functions | Yes |
-| `D3DXCreateTexture`, `D3DXCreateTextureFromFile(Ex)` (A and W), `...FromFileInMemory(Ex)`, `D3DXGetImageInfoFromFile(InMemory)` | Yes: DDS (DXT1–5 and uncompressed), TGA, BMP; PNG with zlib |
-| `D3DXLoadSurfaceFromFileInMemory`, `D3DXLoadSurfaceFromSurface` | Yes |
+| `D3DXCreateTexture`, `D3DXCreateTextureFromFile(Ex)` (A and W), `...FromFileInMemory(Ex)`, `D3DXGetImageInfoFromFile(InMemory)` | Common cases: DDS (DXT1–5 and uncompressed), TGA, BMP; non-interlaced PNG with zlib. Requested `Filter`/`MipFilter` values are ignored; generated mip levels use a box filter |
+| `D3DXLoadSurfaceFromFileInMemory`, `D3DXLoadSurfaceFromSurface` | Common cases. Filter arguments are ignored and encoding decoded pixels into DXT destinations is not implemented |
 | Meshes, effects, fonts, sprites, shader compilation | No |
+| Lines, render-to-surface/environment-map helpers, animation controllers | No |
+| `D3DXSaveSurfaceToFile*`, `ID3DXBuffer` | Save functions return `E_NOTIMPL`; the buffer interface is only forward-declared |
 
 ## Win32 (browser builds)
 
@@ -86,4 +101,6 @@ path. A call that is not implemented logs one line the first time (`[portico-d3d
 | Mouse, wheel and keyboard messages from the canvas | Yes |
 | `timeGetTime`, `GetTickCount`, `QueryPerformanceCounter`, `Sleep`, `MessageBox` (to the console), `GetModuleHandle`, `OutputDebugString` | Yes |
 | `wWinMain`/`WinMain` as the entry point (`portico::win32_main`) | Yes |
-| Everything else of Win32, MFC, DirectSound, Winsock | [Planned](../ROADMAP.md) |
+| Code-page conversions | Partial: the current conversion functions treat input as UTF-8, rather than implementing arbitrary Windows code pages/flags. Emscripten `wchar_t` is 32-bit |
+| Additional game-facing Win32 APIs, MFC subset, DirectSound, Winsock | [Extraction planned](../ROADMAP.md#what-can-be-extracted); this is not a commitment to implement all of Win32 |
+| DirectInput, XInput, legacy graphics/audio/network/media frameworks | No dedicated public modules. See the [ecosystem inventory](ecosystem-coverage.md) for investigation, dependencies and exclusions |

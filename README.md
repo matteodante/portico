@@ -45,14 +45,18 @@ it](https://github.com/matteodante/matteodante/blob/main/articles/porting-a-wind
 | `portico::d3d9` | **v0.1** | Direct3D 9 fixed-function pipeline on OpenGL ES 3: WebGL2 in the browser, ANGLE natively. Fixed-function state becomes generated GLSL, one program per state combination. |
 | `portico::d3dx` | **v0.1** | D3DX 9 math (vectors, matrices, quaternions, planes, colors) and texture loading (DDS with DXT, TGA, BMP, PNG), over any `IDirect3DDevice9`. |
 | `portico::win32` | **v0.1, minimal** | For the browser: windows bound to the page's canvas, the message queue with `PeekMessage`/`GetMessage`, input from the canvas, timers, `wWinMain`/`WinMain` as the entry point. |
-| Win32 (complete), MFC subset, DirectSound 8, Winsock over WebSocket, OPFS asset installer | [planned](ROADMAP.md) | The rest of the platform layer of the original port. |
+| More game-facing Win32 APIs, MFC subset, DirectSound 8, Winsock over WebSocket, OPFS asset installer | [planned](ROADMAP.md) | The rest of the platform layer of the original port, to be extracted and tested independently. |
 
-The fixed-function pipeline covers what most Direct3D 9 games of the era use: up to 8 lights (directional, point,
+The current fixed-function pipeline supports up to 8 lights (directional, point,
 spot), materials and vertex colors, 8 texture stages with the texture blending operations (except bump-environment
 mapping), texture coordinate generation and transforms, vertex blending (indexed too), linear/exp/exp2 fog, alpha
 test, alpha blending, depth and stencil, multiple vertex streams, DXT textures, render targets. It does **not** run
 programmable shaders yet.
 The details are in [docs/supported-api.md](docs/supported-api.md).
+
+The [roadmap](ROADMAP.md) gives the proposed development sequence. The
+[ecosystem coverage plan](docs/ecosystem-coverage.md) tracks graphics gaps, platform dependencies, input, audio,
+networking, media, optional legacy components and browser constraints; these are future work, not current support.
 
 ## How it works
 
