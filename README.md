@@ -15,7 +15,7 @@ pipeline) on top of what a browser offers, so the program's own code compiles un
 The demo is hosted on matteodante.it. The **Live demo** check verifies the published tutorials and license notices;
 the **CI** check builds and tests the source in this repository. See [hosting and checks](docs/testing.md#live-demo).
 
-[Technical article: running Direct3D 9 C++ programs in the browser](https://matteodante.it/en/blog/portico-direct3d9-webgl2).
+[Technical article: Microsoft's Direct3D 9 tutorials, unchanged, in a browser tab](https://matteodante.it/en/blog/portico-direct3d9-webgl2).
 
 | | | | | |
 |---|---|---|---|---|
